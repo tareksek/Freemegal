@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,15 +11,14 @@
 <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)">
 </head>
 <body>
-
   <!-- شاشة العمر -->
   <div id="ageScreen" class="screen active">
     <div class="card glass">
-      <h2><i class="fa-solid fa-user-check"></i> تأكيد العمر</h2>
-      <p>هل عمرك 18 سنة أو أكثر؟</p>
+      <h2 id="ageTitle"><i class="fa-solid fa-user-check"></i> تأكيد العمر</h2>
+      <p id="ageQuestion">هل عمرك 18 سنة أو أكثر؟</p>
       <div class="btn-group">
-        <button id="ageYes" class="btn primary"><i class="fa-solid fa-check"></i> نعم</button>
-        <button id="ageNo" class="btn danger"><i class="fa-solid fa-xmark"></i> لا</button>
+        <button id="ageYes" class="btn primary"><i class="fa-solid fa-check"></i> <span id="ageYesText">نعم</span></button>
+        <button id="ageNo" class="btn danger"><i class="fa-solid fa-xmark"></i> <span id="ageNoText">لا</span></button>
       </div>
     </div>
   </div>
@@ -27,10 +26,10 @@
   <!-- شاشة الجنس -->
   <div id="genderScreen" class="screen">
     <div class="card glass">
-      <h2><i class="fa-solid fa-venus-mars"></i> اختر جنسك</h2>
+      <h2 id="genderTitle"><i class="fa-solid fa-venus-mars"></i> اختر جنسك</h2>
       <div class="btn-group">
-        <button class="btn gender-btn" data-gender="male"><i class="fa-solid fa-mars"></i> ذكر</button>
-        <button class="btn gender-btn" data-gender="female"><i class="fa-solid fa-venus"></i> أنثى</button>
+        <button class="btn gender-btn" data-gender="male"><i class="fa-solid fa-mars"></i> <span id="maleText">ذكر</span></button>
+        <button class="btn gender-btn" data-gender="female"><i class="fa-solid fa-venus"></i> <span id="femaleText">أنثى</span></button>
       </div>
     </div>
   </div>
@@ -38,27 +37,27 @@
   <!-- شاشة التفضيلات -->
   <div id="prefScreen" class="screen">
     <div class="card glass">
-      <h2><i class="fa-solid fa-sliders"></i> التفضيلات</h2>
+      <h2 id="prefTitle"><i class="fa-solid fa-sliders"></i> التفضيلات</h2>
       <p id="prefStatus">تأكيد بريدك الإلكتروني يفتح تفضيل الجنس.</p>
-      <button id="toggleEmailBtn" class="btn outline"><i class="fa-solid fa-envelope"></i> تفعيل التفضيل بالبريد</button>
+      <button id="toggleEmailBtn" class="btn outline"><i class="fa-solid fa-envelope"></i> <span id="toggleEmailText">تفعيل التفضيل بالبريد</span></button>
       <div id="emailSection" class="email-section" style="display: none;">
         <input type="email" id="emailInput" placeholder="بريدك الإلكتروني" />
-        <button id="sendCodeBtn" class="btn secondary"><i class="fa-solid fa-paper-plane"></i> إرسال رمز</button>
+        <button id="sendCodeBtn" class="btn secondary"><i class="fa-solid fa-paper-plane"></i> <span id="sendCodeText">إرسال رمز</span></button>
         <div id="codeSection" class="code-section" style="display: none;">
           <input type="text" id="codeInput" placeholder="الرمز السري" />
-          <button id="verifyCodeBtn" class="btn primary"><i class="fa-solid fa-check-circle"></i> تأكيد</button>
+          <button id="verifyCodeBtn" class="btn primary"><i class="fa-solid fa-check-circle"></i> <span id="verifyCodeText">تأكيد</span></button>
         </div>
         <div id="emailMsg" class="msg"></div>
       </div>
       <div id="prefOptions" class="pref-options" style="display: none;">
-        <label>الجنس المفضل للتحدث معه:</label>
+        <label id="prefLabel">الجنس المفضل للتحدث معه:</label>
         <div class="btn-group">
-          <button class="btn pref-btn" data-pref="male"><i class="fa-solid fa-mars"></i> ذكر</button>
-          <button class="btn pref-btn" data-pref="female"><i class="fa-solid fa-venus"></i> أنثى</button>
-          <button class="btn pref-btn active" data-pref="all"><i class="fa-solid fa-globe"></i> الجميع</button>
+          <button class="btn pref-btn" data-pref="male"><i class="fa-solid fa-mars"></i> <span id="prefMaleText">ذكر</span></button>
+          <button class="btn pref-btn" data-pref="female"><i class="fa-solid fa-venus"></i> <span id="prefFemaleText">أنثى</span></button>
+          <button class="btn pref-btn active" data-pref="all"><i class="fa-solid fa-globe"></i> <span id="prefAllText">الجميع</span></button>
         </div>
       </div>
-      <button id="goToChatBtn" class="btn primary"><i class="fa-solid fa-arrow-right-to-bracket"></i> دخول الدردشة</button>
+      <button id="goToChatBtn" class="btn primary"><i class="fa-solid fa-arrow-right-to-bracket"></i> <span id="goToChatText">دخول الدردشة</span></button>
     </div>
   </div>
 
@@ -67,10 +66,13 @@
     <div class="app-container">
       <div class="top-bar">
         <div class="tabs">
-          <button id="tabRandom" class="tab active"><i class="fa-solid fa-shuffle"></i> عشوائي</button>
-          <button id="tabGroup" class="tab"><i class="fa-solid fa-users"></i> جماعي</button>
+          <button id="tabRandom" class="tab active"><i class="fa-solid fa-shuffle"></i> <span id="tabRandomText">عشوائي</span></button>
+          <button id="tabGroup" class="tab"><i class="fa-solid fa-users"></i> <span id="tabGroupText">جماعي</span></button>
         </div>
-        <div id="statusBadge" class="status-badge">جاهز</div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button id="langToggle" class="tab"><i class="fa-solid fa-globe"></i> <span id="langText">English</span></button>
+          <div id="statusBadge" class="status-badge">جاهز</div>
+        </div>
       </div>
 
       <!-- تبويب العشوائي -->
@@ -79,11 +81,11 @@
           <div class="remote-card">
             <video id="randomRemote" autoplay playsinline></video>
             <div id="randomPartnerLabel" class="video-tag" style="display:none;"></div>
-            <div id="noPartnerMessage" class="no-partner"><i class="fa-solid fa-user-slash"></i> لا يوجد شريك</div>
+            <div id="noPartnerMessage" class="no-partner"><i class="fa-solid fa-user-slash"></i> <span id="noPartnerText">لا يوجد شريك</span></div>
           </div>
           <div class="local-pip">
             <video id="randomLocal" autoplay muted playsinline></video>
-            <span class="pip-tag">أنت</span>
+            <span class="pip-tag" id="youTag">أنت</span>
           </div>
         </div>
         <div id="randomChatBox" class="chat-box" style="display: none;">
@@ -94,9 +96,9 @@
           </div>
         </div>
         <div class="controls">
-          <button id="randomFindBtn" class="btn primary"><i class="fa-solid fa-search"></i> بحث</button>
-          <button id="randomNextBtn" class="btn secondary" disabled><i class="fa-solid fa-forward"></i> التالي</button>
-          <button id="randomDisconnectBtn" class="btn danger" disabled><i class="fa-solid fa-phone-slash"></i> قطع</button>
+          <button id="randomFindBtn" class="btn primary"><i class="fa-solid fa-search"></i> <span id="findBtnText">بحث</span></button>
+          <button id="randomNextBtn" class="btn secondary" disabled><i class="fa-solid fa-forward"></i> <span id="nextBtnText">التالي</span></button>
+          <button id="randomDisconnectBtn" class="btn danger" disabled><i class="fa-solid fa-phone-slash"></i> <span id="disconnectBtnText">قطع</span></button>
         </div>
       </div>
 
@@ -105,12 +107,12 @@
         <div class="group-layout">
           <div class="room-controls">
             <input type="text" id="roomIdInput" placeholder="معرف الغرفة" />
-            <button id="joinRoomBtn" class="btn primary"><i class="fa-solid fa-right-to-bracket"></i> انضمام</button>
-            <button id="createRoomBtn" class="btn secondary"><i class="fa-solid fa-plus"></i> إنشاء</button>
+            <button id="joinRoomBtn" class="btn primary"><i class="fa-solid fa-right-to-bracket"></i> <span id="joinRoomText">انضمام</span></button>
+            <button id="createRoomBtn" class="btn secondary"><i class="fa-solid fa-plus"></i> <span id="createRoomText">إنشاء</span></button>
           </div>
           <div class="room-info">
-            <span id="roomLabel"><i class="fa-solid fa-door-open"></i> لست في غرفة</span>
-            <button id="leaveRoomBtn" class="btn danger small" disabled><i class="fa-solid fa-right-from-bracket"></i> مغادرة</button>
+            <span id="roomLabel"><i class="fa-solid fa-door-open"></i> <span id="notInRoomText">لست في غرفة</span></span>
+            <button id="leaveRoomBtn" class="btn danger small" disabled><i class="fa-solid fa-right-from-bracket"></i> <span id="leaveRoomText">مغادرة</span></button>
           </div>
           <div class="group-videos" id="groupVideos"></div>
           <div id="groupChatBox" class="group-chat-box" style="display: none;">
