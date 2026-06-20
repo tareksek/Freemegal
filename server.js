@@ -18,8 +18,8 @@ const transporter = nodemailer.createTransport({
   port: parseInt(process.env.SMTP_PORT || '587'),
   secure: false,
   auth: {
-    user: process.env.SMTP_USER || 'businesstms27@gmail.com',
-    pass: process.env.SMTP_PASS || 'businesstms@2000'
+    user: process.env.SMTP_USER || '',
+    pass: process.env.SMTP_PASS || ''
   }
 });
 
@@ -75,9 +75,7 @@ app.post('/api/verify-code', (req, res) => {
 });
 
 // ---------- حالة الغرف (في الذاكرة) ----------
-const rooms = new Map(); // roomId -> Set of client IDs
-
-// ---------- منطق المطابقة العشوائية ----------
+const rooms = new Map();
 const waitingUsers = [];
 const clients = new Map();
 
@@ -87,7 +85,6 @@ function generateId() {
 
 function tryMatchRandom() {
   if (waitingUsers.length < 2) return;
-  // يمكن إضافة منطق تفضيلات الجنس هنا إذا رغبت
   const user1 = waitingUsers.shift();
   const user2 = waitingUsers.shift();
   const role1 = Math.random() < 0.5 ? 'initiator' : 'receiver';
@@ -108,7 +105,6 @@ function sendTo(socketId, data) {
   if (client) client.send(JSON.stringify(data));
 }
 
-// ---------- WebSocket ----------
 wss.on('connection', (socket) => {
   socket.id = generateId();
   clients.set(socket.id, socket);
@@ -119,7 +115,6 @@ wss.on('connection', (socket) => {
     try { data = JSON.parse(msg); } catch (e) { return; }
 
     switch (data.type) {
-      // ---------- عشوائي ----------
       case 'find':
         if (socket.partnerId) return;
         removeFromWaiting(socket.id);
@@ -149,14 +144,12 @@ wss.on('connection', (socket) => {
         socket.send(JSON.stringify({ type: 'disconnected' }));
         break;
 
-      // ---------- إشارات 1-1 ----------
       case 'offer':
       case 'answer':
       case 'ice-candidate':
         if (socket.partnerId) sendTo(socket.partnerId, { type: data.type, payload: data.payload });
         break;
 
-      // ---------- غرف جماعية ----------
       case 'create-room':
         {
           const roomId = data.roomId || generateId();
@@ -164,7 +157,6 @@ wss.on('connection', (socket) => {
           rooms.get(roomId).add(socket.id);
           socket.currentRoom = roomId;
           socket.send(JSON.stringify({ type: 'room-created', roomId }));
-          // إعلام باقي المشتركين (لا يوجد بعد)
         }
         break;
       case 'join-room':
@@ -175,10 +167,8 @@ wss.on('connection', (socket) => {
             return;
           }
           const room = rooms.get(roomId);
-          // إرسال قائمة الأعضاء الحاليين للعضو الجديد
           const members = Array.from(room);
           socket.send(JSON.stringify({ type: 'room-users', members }));
-          // إعلام باقي الأعضاء بالعضو الجديد
           room.forEach(memberId => {
             if (memberId !== socket.id) sendTo(memberId, { type: 'room-user-joined', userId: socket.id });
           });
@@ -200,7 +190,6 @@ wss.on('connection', (socket) => {
         }
         break;
 
-      // ---------- إشارات الغرفة (تمرير إلى عضو معين) ----------
       case 'group-offer':
         sendTo(data.to, { type: 'group-offer', from: socket.id, payload: data.payload });
         break;
@@ -217,14 +206,12 @@ wss.on('connection', (socket) => {
 
   socket.on('close', () => {
     console.log(`فصل: ${socket.id}`);
-    // تنظيف العشوائي
     if (socket.partnerId) {
       sendTo(socket.partnerId, { type: 'partnerDisconnected' });
       const partner = clients.get(socket.partnerId);
       if (partner) partner.partnerId = null;
     }
     removeFromWaiting(socket.id);
-    // تنظيف الغرفة
     if (socket.currentRoom) {
       const room = rooms.get(socket.currentRoom);
       if (room) {
