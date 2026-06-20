@@ -1,4 +1,6 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -6,225 +8,309 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #1a1a2e;
+  font-family: 'Cairo', sans-serif;
+  background: #0f0f1a;
   color: #fff;
   height: 100vh;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* الشاشات العامة */
+/* خلفية متحركة خفيفة */
+body::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 30%, #2a1a5e, #0f0f1a);
+  animation: rotate 20s linear infinite;
+  z-index: -1;
+}
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* الشاشات */
 .screen {
   display: none;
   width: 100%;
-  height: 100vh;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
   justify-content: center;
   align-items: center;
-  background: #1a1a2e;
-  padding: 20px;
 }
 .screen.active {
   display: flex;
 }
 
-.card {
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(15px);
-  border-radius: 20px;
-  padding: 30px;
+/* كرت زجاجي */
+.glass-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  border-radius: 30px;
+  padding: 40px;
   text-align: center;
-  max-width: 400px;
-  width: 100%;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.15);
 }
 
-.btn-group {
+.glass-card h2 {
+  margin-bottom: 15px;
+  font-weight: 700;
+  font-size: 1.8rem;
+}
+
+.glass-card p {
+  margin-bottom: 20px;
+  opacity: 0.85;
+}
+
+/* أزرار عصرية */
+.modern-btn {
+  padding: 14px 28px;
+  border: none;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(255,255,255,0.1);
+  color: white;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255,255,255,0.2);
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 5px;
+}
+.modern-btn:hover {
+  background: rgba(255,255,255,0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+.modern-btn:active {
+  transform: translateY(0);
+}
+.modern-btn.primary {
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  border-color: #4caf50;
+}
+.modern-btn.secondary {
+  background: linear-gradient(135deg, #ff9800, #e65100);
+}
+.modern-btn.danger {
+  background: linear-gradient(135deg, #f44336, #b71c1c);
+}
+.modern-btn.outline {
+  background: transparent;
+  border: 2px solid #4caf50;
+  color: #4caf50;
+}
+.modern-btn.small {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+.modern-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.btn-row {
   display: flex;
-  gap: 10px;
   justify-content: center;
   flex-wrap: wrap;
-  margin: 20px 0;
+  gap: 10px;
+  margin: 15px 0;
+}
+.gender-btn.selected {
+  background: #2196F3;
+  border-color: #2196F3;
+}
+.pref-btn.active {
+  background: #9c27b0;
+  border-color: #9c27b0;
 }
 
-.btn {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 30px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s;
-  color: white;
-  background: #333;
-}
-.btn.primary { background: #4caf50; }
-.btn.secondary { background: #ff9800; }
-.btn.danger { background: #f44336; }
-.btn.outline { background: transparent; border: 2px solid #4caf50; color: #4caf50; }
-.btn.small { padding: 8px 15px; font-size: 0.9rem; }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn.active { background: #4caf50; border-color: #4caf50; }
-.gender-btn { background: #555; }
-.gender-btn.selected { background: #2196F3; }
-.pref-btn { background: #555; }
-.pref-btn.active { background: #9c27b0; }
-
-input[type="email"], input[type="text"] {
+/* حقول الإدخال */
+input {
   width: 100%;
-  padding: 10px;
+  padding: 14px 18px;
   margin: 10px 0;
-  border-radius: 25px;
+  border-radius: 50px;
   border: none;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(5px);
   color: #fff;
   font-size: 1rem;
   outline: none;
+  transition: 0.3s;
 }
-input::placeholder { color: #ccc; }
+input:focus {
+  background: rgba(255,255,255,0.2);
+}
+input::placeholder {
+  color: #bbb;
+}
 
 .msg {
   margin-top: 10px;
   font-size: 0.9rem;
+  color: #ffd54f;
 }
 
-/* شاشة الدردشة */
-.chat-layout {
+.email-section, .code-section, .pref-options {
+  margin-top: 15px;
+}
+
+/* ========== شاشة الدردشة ========== */
+.chat-app {
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
-  background: #000;
 }
 
-.remote-video-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-.remote-video-container video {
+.remote-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  background: #000;
 }
-.partner-label {
+
+.partner-tag {
   position: absolute;
   top: 20px;
   left: 20px;
   background: rgba(0,0,0,0.6);
-  padding: 5px 15px;
-  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  padding: 8px 20px;
+  border-radius: 30px;
   font-size: 1rem;
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.2);
 }
 
-.local-video-container {
+.local-video-wrapper {
   position: absolute;
-  bottom: 80px;
+  bottom: 100px;
   right: 20px;
-  width: 160px;
-  height: 120px;
-  border-radius: 15px;
+  width: 140px;
+  height: 100px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.6);
   border: 2px solid rgba(255,255,255,0.3);
   background: #000;
+  transition: all 0.3s;
 }
-.local-video-container video {
+.local-video-wrapper video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transform: scaleX(-1); /* مرآة */
 }
-.local-label {
+.local-tag {
   position: absolute;
   bottom: 5px;
-  left: 8px;
+  left: 5px;
   background: rgba(0,0,0,0.6);
   padding: 2px 8px;
   border-radius: 12px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
 }
 
-.chat-box {
+/* لوحة الدردشة */
+.chat-panel {
   position: absolute;
-  bottom: 200px;
+  bottom: 180px;
   left: 20px;
   right: 20px;
   max-width: 400px;
   background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(10px);
-  border-radius: 15px;
-  max-height: 250px;
-  display: flex;
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  display: none;
   flex-direction: column;
-  overflow: hidden;
+  max-height: 300px;
+  border: 1px solid rgba(255,255,255,0.15);
 }
-.chat-messages {
+.messages {
   flex: 1;
   overflow-y: auto;
-  padding: 10px;
+  padding: 15px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 8px;
 }
-.chat-messages .msg-line {
-  background: rgba(255,255,255,0.15);
-  padding: 5px 12px;
-  border-radius: 15px;
-  max-width: 75%;
+.msg-line {
+  background: rgba(255,255,255,0.1);
+  padding: 8px 15px;
+  border-radius: 20px;
+  max-width: 80%;
   word-break: break-word;
+  backdrop-filter: blur(5px);
 }
-.chat-messages .msg-you {
+.msg-you {
   align-self: flex-start;
   background: #4a6fa5;
 }
-.chat-messages .msg-partner {
+.msg-partner {
   align-self: flex-end;
   background: #6d4a8c;
 }
-.chat-input-area {
+.message-input {
   display: flex;
-  padding: 8px;
+  padding: 10px;
+  gap: 8px;
 }
-.chat-input-area input {
-  flex: 1;
+.message-input input {
   margin: 0;
-  margin-right: 8px;
 }
 
-.status-bar {
+.status-top {
   position: absolute;
   top: 20px;
   right: 20px;
   left: 20px;
   text-align: center;
   background: rgba(0,0,0,0.6);
-  padding: 8px;
-  border-radius: 25px;
+  backdrop-filter: blur(10px);
+  padding: 10px;
+  border-radius: 30px;
   font-size: 1rem;
+  font-weight: 600;
 }
 
-.controls-bar {
+.bottom-controls {
   position: absolute;
   bottom: 20px;
   left: 20px;
   right: 20px;
   display: flex;
   justify-content: center;
-  gap: 15px;
+  gap: 12px;
 }
 
+/* توافق مع الجوال */
 @media (max-width: 600px) {
-  .local-video-container {
-    width: 120px;
-    height: 90px;
-    bottom: 100px;
+  .local-video-wrapper {
+    width: 100px;
+    height: 75px;
+    bottom: 130px;
   }
-  .chat-box {
-    bottom: 180px;
-    left: 10px;
-    right: 10px;
-    max-height: 200px;
+  .chat-panel {
+    bottom: 200px;
   }
 }
