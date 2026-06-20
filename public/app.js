@@ -1,6 +1,211 @@
 (function() {
   'use strict';
 
+  // ---------- نظام الترجمة ----------
+  const translations = {
+    ar: {
+      ageTitle: 'تأكيد العمر',
+      ageQuestion: 'هل عمرك 18 سنة أو أكثر؟',
+      yes: 'نعم',
+      no: 'لا',
+      genderTitle: 'اختر جنسك',
+      male: 'ذكر',
+      female: 'أنثى',
+      prefTitle: 'التفضيلات',
+      prefStatusDefault: 'تأكيد بريدك الإلكتروني يفتح تفضيل الجنس.',
+      toggleEmail: 'تفعيل التفضيل بالبريد',
+      sendCode: 'إرسال رمز',
+      verifyCode: 'تأكيد',
+      prefLabel: 'الجنس المفضل للتحدث معه:',
+      all: 'الجميع',
+      goToChat: 'دخول الدردشة',
+      tabRandom: 'عشوائي',
+      tabGroup: 'جماعي',
+      statusReady: 'جاهز',
+      statusSearching: 'جاري البحث...',
+      statusConnected: 'متصل',
+      statusDisconnected: 'انقطع',
+      statusInRoom: 'في غرفة',
+      statusNotInRoom: 'خارج غرفة',
+      noPartner: 'لا يوجد شريك',
+      you: 'أنت',
+      partner: 'الشريك',
+      find: 'بحث',
+      next: 'التالي',
+      disconnect: 'قطع',
+      joinRoom: 'انضمام',
+      createRoom: 'إنشاء',
+      leaveRoom: 'مغادرة',
+      notInRoom: 'لست في غرفة',
+      emailPlaceholder: 'بريدك الإلكتروني',
+      codePlaceholder: 'الرمز السري',
+      randomMsgPlaceholder: 'رسالتك...',
+      groupMsgPlaceholder: 'رسالة للجميع...',
+      roomIdPlaceholder: 'معرف الغرفة',
+      emailSent: 'تم إرسال الرمز إلى بريدك.',
+      emailSentDev: 'تم إرسال الرمز (تحقق من الطرفية).',
+      codeVerified: '✅ تم التأكيد!',
+      genderRequired: 'اختر جنسك أولاً.',
+      emailRequired: 'أكد بريدك أولاً',
+      mediaError: 'تعذر الوصول للكاميرا والميكروفون',
+      wsClosed: 'انقطع الاتصال بالخادم',
+      youLabel: 'أنت',
+      partnerLabel: 'الشريك',
+      user: 'مستخدم',
+      langBtn: 'English',
+      langCode: 'en'
+    },
+    en: {
+      ageTitle: 'Age Verification',
+      ageQuestion: 'Are you 18 years or older?',
+      yes: 'Yes',
+      no: 'No',
+      genderTitle: 'Choose Your Gender',
+      male: 'Male',
+      female: 'Female',
+      prefTitle: 'Preferences',
+      prefStatusDefault: 'Verify your email to unlock gender preference.',
+      toggleEmail: 'Activate Preference via Email',
+      sendCode: 'Send Code',
+      verifyCode: 'Verify',
+      prefLabel: 'Preferred gender to talk to:',
+      all: 'Everyone',
+      goToChat: 'Enter Chat',
+      tabRandom: 'Random',
+      tabGroup: 'Group',
+      statusReady: 'Ready',
+      statusSearching: 'Searching...',
+      statusConnected: 'Connected',
+      statusDisconnected: 'Disconnected',
+      statusInRoom: 'In Room',
+      statusNotInRoom: 'Not in Room',
+      noPartner: 'No Partner',
+      you: 'You',
+      partner: 'Partner',
+      find: 'Find',
+      next: 'Next',
+      disconnect: 'Disconnect',
+      joinRoom: 'Join',
+      createRoom: 'Create',
+      leaveRoom: 'Leave',
+      notInRoom: 'Not in a room',
+      emailPlaceholder: 'Your Email',
+      codePlaceholder: 'Secret Code',
+      randomMsgPlaceholder: 'Your message...',
+      groupMsgPlaceholder: 'Message to everyone...',
+      roomIdPlaceholder: 'Room ID',
+      emailSent: 'Code sent to your email.',
+      emailSentDev: 'Code sent (check terminal).',
+      codeVerified: '✅ Verified!',
+      genderRequired: 'Please choose your gender first.',
+      emailRequired: 'Please verify your email first.',
+      mediaError: 'Could not access camera/microphone',
+      wsClosed: 'Server disconnected',
+      youLabel: 'You',
+      partnerLabel: 'Partner',
+      user: 'User',
+      langBtn: 'العربية',
+      langCode: 'ar'
+    }
+  };
+
+  let currentLang = localStorage.getItem('lang') || 'ar';
+
+  function t(key) {
+    return translations[currentLang]?.[key] || translations.ar[key] || key;
+  }
+
+  function applyStaticTranslations() {
+    // تحديث جميع العناصر التي تحمل id مطابق للمفاتيح (مبسطة)
+    const ids = [
+      'ageTitle','ageQuestion','ageYesText','ageNoText',
+      'genderTitle','maleText','femaleText',
+      'prefTitle','prefStatus','toggleEmailText','sendCodeText','verifyCodeText',
+      'prefLabel','prefMaleText','prefFemaleText','prefAllText','goToChatText',
+      'tabRandomText','tabGroupText','langText',
+      'noPartnerText','youTag','findBtnText','nextBtnText','disconnectBtnText',
+      'joinRoomText','createRoomText','leaveRoomText','notInRoomText'
+    ];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        if (id === 'prefStatus') {
+          // prefStatus يحمل نصًا ديناميكيًا أحيانًا، لكن نبدأ بالافتراضي
+          if (!el.dataset.dynamic) el.textContent = t('prefStatusDefault');
+        } else {
+          el.textContent = t(id.replace(/Text$/,'').replace(/^maleText$/,'male').replace(/^femaleText$/,'female') );
+        }
+      }
+    });
+
+    // تحديث الخصائص placeholder
+    document.getElementById('emailInput').placeholder = t('emailPlaceholder');
+    document.getElementById('codeInput').placeholder = t('codePlaceholder');
+    document.getElementById('randomMessageInput').placeholder = t('randomMsgPlaceholder');
+    document.getElementById('groupMessageInput').placeholder = t('groupMsgPlaceholder');
+    document.getElementById('roomIdInput').placeholder = t('roomIdPlaceholder');
+
+    // تحديث حالة prefStatus إذا لم يتغير ديناميكيًا
+    const prefStatusEl = document.getElementById('prefStatus');
+    if (prefStatusEl && !prefStatusEl.dataset.dynamic) {
+      prefStatusEl.textContent = t('prefStatusDefault');
+    }
+
+    // تحديث نص زر اللغة
+    const langBtn = document.getElementById('langText');
+    if (langBtn) langBtn.textContent = t('langBtn');
+
+    // تحديث اتجاه الصفحة
+    document.documentElement.lang = currentLang;
+    document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  }
+
+  function switchLanguage() {
+    currentLang = currentLang === 'ar' ? 'en' : 'ar';
+    localStorage.setItem('lang', currentLang);
+    applyStaticTranslations();
+    // تحديث النصوص الديناميكية (الحالة، الأزرار، إلخ)
+    updateDynamicTexts();
+  }
+
+  function updateDynamicTexts() {
+    // تحديث نص حالة الدردشة إن كانت مرئية
+    if (currentScreen === 'chat') {
+      setStatus(getStatusText());
+      // تحديث تسميات التبويب إذا تغيرت
+      document.getElementById('tabRandomText').textContent = t('tabRandom');
+      document.getElementById('tabGroupText').textContent = t('tabGroup');
+      // تحديث أزرار التحكم
+      document.getElementById('findBtnText').textContent = t('find');
+      document.getElementById('nextBtnText').textContent = t('next');
+      document.getElementById('disconnectBtnText').textContent = t('disconnect');
+      document.getElementById('joinRoomText').textContent = t('joinRoom');
+      document.getElementById('createRoomText').textContent = t('createRoom');
+      document.getElementById('leaveRoomText').textContent = t('leaveRoom');
+      document.getElementById('notInRoomText').textContent = t('notInRoom');
+      // تحديث تسمية "لا يوجد شريك" إن وجدت
+      document.getElementById('noPartnerText').textContent = t('noPartner');
+      document.getElementById('youTag').textContent = t('you');
+      // تحديث رسائل الغرفة
+      if (groupRoomId) {
+        document.getElementById('roomLabel').innerHTML = `<i class="fa-solid fa-users"></i> ${t('statusInRoom')} : ${groupRoomId}`;
+      } else {
+        document.getElementById('roomLabel').innerHTML = `<i class="fa-solid fa-door-open"></i> ${t('notInRoom')}`;
+      }
+    }
+  }
+
+  function getStatusText() {
+    if (activeTab === 'random') {
+      if (randomState === 'idle') return t('statusReady');
+      if (randomState === 'searching') return t('statusSearching');
+      if (randomState === 'connected') return t('statusConnected');
+      return t('statusDisconnected');
+    } else {
+      return groupRoomId ? t('statusInRoom') : t('statusNotInRoom');
+    }
+  }
+
   // ---------- بيانات المستخدم ----------
   const userData = {
     ageConfirmed: false,
@@ -10,7 +215,7 @@
     preferredGender: null
   };
 
-  // عناصر DOM العامة
+  let currentScreen = 'age';
   const screens = {
     age: document.getElementById('ageScreen'),
     gender: document.getElementById('genderScreen'),
@@ -18,12 +223,12 @@
     chat: document.getElementById('chatScreen')
   };
 
-  // ---------- وظائف مساعدة ----------
   function showScreen(screenId) {
     Object.keys(screens).forEach(id => {
       screens[id].classList.toggle('active', id === screenId);
     });
-    console.log('عرض شاشة:', screenId);
+    currentScreen = screenId;
+    if (screenId === 'chat') updateDynamicTexts();
   }
 
   // ========== المرحلة 1: شاشات البداية ==========
@@ -65,45 +270,46 @@
 
     sendCodeBtn.addEventListener('click', async () => {
       const email = emailInput.value.trim();
-      if (!email) { emailMsg.textContent = 'أدخل بريداً صحيحاً'; return; }
-      emailMsg.textContent = 'جاري الإرسال...';
+      if (!email) { emailMsg.textContent = t('emailRequired'); return; }
+      emailMsg.textContent = '...';
       try {
         const res = await fetch('/api/send-code', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email}) });
         const data = await res.json();
         if (res.ok) {
-          emailMsg.textContent = data.message;
+          emailMsg.textContent = data.code ? t('emailSentDev') : t('emailSent');
           codeSection.style.display = 'block';
-          if (data.code) alert('رمز التأكيد (للتطوير): ' + data.code);
+          if (data.code) alert(t('codeSentDev') + data.code);
         } else {
-          emailMsg.textContent = data.error || 'فشل';
+          emailMsg.textContent = data.error || t('error');
         }
-      } catch(e) { emailMsg.textContent = 'فشل الاتصال بالخادم.'; }
+      } catch(e) { emailMsg.textContent = t('error'); }
     });
 
     verifyCodeBtn.addEventListener('click', async () => {
       const email = emailInput.value.trim();
       const code = codeInput.value.trim();
-      if (!email || !code) { emailMsg.textContent = 'أدخل البريد والرمز'; return; }
+      if (!email || !code) { emailMsg.textContent = t('emailRequired'); return; }
       try {
         const res = await fetch('/api/verify-code', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, code}) });
         const data = await res.json();
         if (res.ok) {
           userData.emailVerified = true;
           userData.email = email;
-          emailMsg.textContent = '✅ تم التأكيد!';
+          emailMsg.textContent = t('codeVerified');
           emailSection.style.display = 'none';
           toggleEmailBtn.style.display = 'none';
-          prefStatus.textContent = 'يمكنك الآن اختيار الجنس المفضل.';
+          prefStatus.textContent = t('prefStatusDefault');
+          prefStatus.dataset.dynamic = 'true';
           prefOptions.style.display = 'block';
         } else {
-          emailMsg.textContent = data.error || 'فشل';
+          emailMsg.textContent = data.error || t('error');
         }
-      } catch(e) { emailMsg.textContent = 'فشل الاتصال بالخادم.'; }
+      } catch(e) { emailMsg.textContent = t('error'); }
     });
 
     document.querySelectorAll('.pref-btn').forEach(btn => {
       btn.addEventListener('click', function() {
-        if (!userData.emailVerified) { alert('أكد بريدك أولاً'); return; }
+        if (!userData.emailVerified) { alert(t('emailRequired')); return; }
         document.querySelectorAll('.pref-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
         userData.preferredGender = this.dataset.pref;
@@ -111,7 +317,7 @@
     });
 
     goToChatBtn.addEventListener('click', () => {
-      if (!userData.gender) { alert('اختر جنسك'); return; }
+      if (!userData.gender) { alert(t('genderRequired')); return; }
       showScreen('chat');
       initChatApp();
     });
@@ -119,7 +325,7 @@
 
   // ========== المرحلة 3: تطبيق الدردشة ==========
   let ws = null;
-  let randomState = 'idle'; // idle, searching, connected
+  let randomState = 'idle';
   let randomLocalStream = null, randomPC = null, randomDC = null, randomPartnerId = null;
   let groupLocalStream = null, groupRoomId = null;
   const groupPeers = new Map();
@@ -175,51 +381,47 @@
     ws.onopen = () => console.log('WS مفتوح');
     ws.onmessage = handleWSMessage;
     ws.onclose = () => {
-      console.log('WS مغلق');
-      setStatus('انقطع الاتصال بالخادم');
+      setStatus(t('wsClosed'));
       closeRandomPeer();
       randomState = 'idle';
       updateRandomButtons();
     };
-    ws.onerror = (err) => console.error('WS خطأ:', err);
+    ws.onerror = () => {};
   }
 
   function handleWSMessage(e) {
     const data = JSON.parse(e.data);
-    console.log('رسالة:', data.type);
-
     switch (data.type) {
       case 'searching':
         randomState = 'searching';
         updateRandomButtons();
-        setStatus('جاري البحث...');
+        setStatus(t('statusSearching'));
         break;
       case 'matched':
         randomPartnerId = data.partnerId;
         if (dom.randomPartnerLabel) {
-          dom.randomPartnerLabel.textContent = `الشريك (${data.partnerInfo.gender})`;
+          dom.randomPartnerLabel.textContent = `${t('partner')} (${data.partnerInfo.gender})`;
           dom.randomPartnerLabel.style.display = 'block';
         }
         if (dom.noPartnerMessage) dom.noPartnerMessage.style.display = 'none';
         startRandomPeer(data.role);
         randomState = 'connected';
         updateRandomButtons();
-        setStatus('متصل');
+        setStatus(t('statusConnected'));
         break;
       case 'partnerDisconnected':
         closeRandomPeer();
         randomState = 'idle';
         updateRandomButtons();
-        setStatus('انقطع');
+        setStatus(t('statusDisconnected'));
         break;
       case 'disconnected':
         closeRandomPeer();
         stopRandomMedia();
         randomState = 'idle';
         updateRandomButtons();
-        setStatus('جاهز');
+        setStatus(t('statusReady'));
         break;
-
       case 'offer':
         if (randomPC) {
           randomPC.setRemoteDescription(new RTCSessionDescription(data.payload))
@@ -227,34 +429,31 @@
             .then(answer => {
               randomPC.setLocalDescription(answer);
               ws.send(JSON.stringify({ type: 'answer', payload: answer }));
-            }).catch(err => console.error('offer error:', err));
+            }).catch(err => console.error(err));
         }
         break;
       case 'answer':
-        if (randomPC) randomPC.setRemoteDescription(new RTCSessionDescription(data.payload)).catch(err => console.error('answer error:', err));
+        if (randomPC) randomPC.setRemoteDescription(new RTCSessionDescription(data.payload)).catch(err => console.error(err));
         break;
       case 'ice-candidate':
-        if (randomPC && data.payload) randomPC.addIceCandidate(new RTCIceCandidate(data.payload)).catch(err => console.error('ice error:', err));
+        if (randomPC && data.payload) randomPC.addIceCandidate(new RTCIceCandidate(data.payload)).catch(err => console.error(err));
         break;
-
-      // الغرفة
       case 'room-created':
         groupRoomId = data.roomId;
-        if (dom.roomLabel) dom.roomLabel.innerHTML = `<i class="fa-solid fa-users"></i> الغرفة: ${groupRoomId}`;
-        if (dom.leaveRoomBtn) dom.leaveRoomBtn.disabled = false;
-        if (dom.groupChatBox) dom.groupChatBox.style.display = 'flex';
-        setStatus('في غرفة');
+        dom.roomLabel.innerHTML = `<i class="fa-solid fa-users"></i> ${t('statusInRoom')} : ${groupRoomId}`;
+        dom.leaveRoomBtn.disabled = false;
+        dom.groupChatBox.style.display = 'flex';
+        setStatus(t('statusInRoom'));
         break;
       case 'room-users':
-        // عند الانضمام، نستلم قائمة الأعضاء
-        if (!groupRoomId) groupRoomId = 'joined-room'; // معرف مؤقت (نتجاهله لأننا نعرف من حدث join)
+        if (!groupRoomId) groupRoomId = 'joined';
         data.members.forEach(async memberId => {
           if (memberId !== ws.id) await setupGroupPeer(memberId, true);
         });
-        if (dom.roomLabel && !groupRoomId) dom.roomLabel.innerHTML = `<i class="fa-solid fa-users"></i> الغرفة`;
-        if (dom.leaveRoomBtn) dom.leaveRoomBtn.disabled = false;
-        if (dom.groupChatBox) dom.groupChatBox.style.display = 'flex';
-        setStatus('في غرفة');
+        if (dom.roomLabel) dom.roomLabel.innerHTML = `<i class="fa-solid fa-users"></i> ${t('statusInRoom')}`;
+        dom.leaveRoomBtn.disabled = false;
+        dom.groupChatBox.style.display = 'flex';
+        setStatus(t('statusInRoom'));
         break;
       case 'room-user-joined':
         setupGroupPeer(data.userId, true);
@@ -262,7 +461,6 @@
       case 'room-user-left':
         closeGroupPeer(data.userId);
         break;
-
       case 'group-offer':
         setupGroupPeer(data.from, false).then(async pc => {
           await pc.setRemoteDescription(new RTCSessionDescription(data.payload));
@@ -280,7 +478,7 @@
       case 'group-ice-candidate':
         if (groupPeers.has(data.from) && data.payload) {
           const peer = groupPeers.get(data.from);
-          if (peer.pc) peer.pc.addIceCandidate(new RTCIceCandidate(data.payload)).catch(err => console.error('group ice error:', err));
+          if (peer.pc) peer.pc.addIceCandidate(new RTCIceCandidate(data.payload)).catch(err => console.error(err));
         }
         break;
       case 'error':
@@ -297,7 +495,7 @@
       dom.randomLocal.srcObject = randomLocalStream;
       return true;
     } catch(e) {
-      alert('تعذر الوصول للكاميرا');
+      alert(t('mediaError'));
       return false;
     }
   }
@@ -358,7 +556,7 @@
   function addRandomMsg(text, sender) {
     const div = document.createElement('div');
     div.className = `msg-line ${sender === 'you' ? 'msg-you' : 'msg-partner'}`;
-    div.textContent = (sender === 'you' ? 'أنت: ' : 'الشريك: ') + text;
+    div.textContent = `${sender === 'you' ? t('youLabel') : t('partnerLabel')}: ${text}`;
     dom.randomMessages.appendChild(div);
     dom.randomMessages.scrollTop = dom.randomMessages.scrollHeight;
   }
@@ -368,9 +566,9 @@
     if (groupLocalStream) return true;
     try {
       groupLocalStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      addGroupVideo('local', groupLocalStream, 'أنت');
+      addGroupVideo('local', groupLocalStream, t('youLabel'));
       return true;
-    } catch(e) { alert('الكاميرا مطلوبة'); return false; }
+    } catch(e) { alert(t('mediaError')); return false; }
   }
 
   function addGroupVideo(id, stream, label) {
@@ -403,7 +601,7 @@
     groupLocalStream.getTracks().forEach(t => pc.addTrack(t, groupLocalStream));
 
     pc.ontrack = e => {
-      if (e.streams[0]) addGroupVideo(userId, e.streams[0], `مستخدم ${userId}`);
+      if (e.streams[0]) addGroupVideo(userId, e.streams[0], `${t('user')} ${userId}`);
     };
     pc.onicecandidate = e => {
       if (e.candidate && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'group-ice-candidate', to: userId, payload: e.candidate }));
@@ -429,7 +627,7 @@
     const peer = groupPeers.get(userId) || {};
     peer.dc = dc;
     groupPeers.set(userId, peer);
-    dc.onmessage = e => addGroupMsg(`مستخدم ${userId}`, e.data);
+    dc.onmessage = e => addGroupMsg(`${t('user')} ${userId}`, e.data);
   }
 
   function closeGroupPeer(userId) {
@@ -454,10 +652,10 @@
       if (el.id !== 'video-local') el.remove();
     });
     groupRoomId = null;
-    dom.roomLabel.innerHTML = '<i class="fa-solid fa-door-open"></i> لست في غرفة';
+    dom.roomLabel.innerHTML = `<i class="fa-solid fa-door-open"></i> ${t('notInRoom')}`;
     dom.leaveRoomBtn.disabled = true;
     dom.groupChatBox.style.display = 'none';
-    setStatus('خارج غرفة');
+    setStatus(t('statusNotInRoom'));
   }
 
   function addGroupMsg(sender, text) {
@@ -468,18 +666,18 @@
     dom.groupMessages.scrollTop = dom.groupMessages.scrollHeight;
   }
 
-  // ---------- تبويبات ----------
   function switchTab(tab) {
     activeTab = tab;
     dom.tabRandom.classList.toggle('active', tab === 'random');
     dom.tabGroup.classList.toggle('active', tab === 'group');
     dom.randomPanel.classList.toggle('active', tab === 'random');
     dom.groupPanel.classList.toggle('active', tab === 'group');
-    setStatus(tab === 'random' ? (randomState === 'idle' ? 'جاهز' : randomState === 'searching' ? 'جاري البحث...' : 'متصل') : (groupRoomId ? 'في غرفة' : 'خارج غرفة'));
+    setStatus(getStatusText());
   }
 
-  // ---------- ربط أحداث الدردشة ----------
   function bindChatEvents() {
+    document.getElementById('langToggle').addEventListener('click', switchLanguage);
+
     dom.tabRandom.addEventListener('click', () => switchTab('random'));
     dom.tabGroup.addEventListener('click', () => switchTab('group'));
 
@@ -491,7 +689,7 @@
       else ws.addEventListener('open', send, { once: true });
       randomState = 'searching';
       updateRandomButtons();
-      setStatus('جاري البحث...');
+      setStatus(t('statusSearching'));
     });
 
     dom.randomNextBtn.addEventListener('click', () => {
@@ -500,7 +698,7 @@
       closeRandomPeer();
       randomState = 'searching';
       updateRandomButtons();
-      setStatus('جاري البحث...');
+      setStatus(t('statusSearching'));
     });
 
     dom.randomDisconnectBtn.addEventListener('click', () => {
@@ -510,7 +708,7 @@
       stopRandomMedia();
       randomState = 'idle';
       updateRandomButtons();
-      setStatus('جاهز');
+      setStatus(t('statusReady'));
     });
 
     dom.randomSendBtn.addEventListener('click', () => {
@@ -528,7 +726,6 @@
       if (!roomId) return;
       connectWebSocket();
       ws.send(JSON.stringify({ type: 'join-room', roomId }));
-      // سننتظر الرد 'room-users' قبل تحديث الواجهة
     });
 
     dom.createRoomBtn.addEventListener('click', async () => {
@@ -545,12 +742,11 @@
       groupPeers.forEach(peer => {
         if (peer.dc && peer.dc.readyState === 'open') peer.dc.send(text);
       });
-      addGroupMsg('أنت', text);
+      addGroupMsg(t('youLabel'), text);
       dom.groupMsgInput.value = '';
     });
   }
 
-  // تنظيف عند مغادرة الصفحة
   window.addEventListener('beforeunload', () => {
     if (ws && ws.readyState === WebSocket.OPEN) {
       if (randomState === 'connected') ws.send(JSON.stringify({ type: 'disconnect-random' }));
@@ -562,14 +758,16 @@
     cacheChatDom();
     bindChatEvents();
     connectWebSocket();
+    applyStaticTranslations(); // تطبيق الترجمة على شاشة الدردشة
     switchTab('random');
     randomState = 'idle';
     updateRandomButtons();
-    setStatus('جاهز');
+    setStatus(t('statusReady'));
   }
 
-  // بدء التطبيق بعد تحميل DOM
+  // بدء التطبيق
   document.addEventListener('DOMContentLoaded', () => {
+    applyStaticTranslations(); // ترجمة الشاشات الأولى
     initStartupScreens();
   });
 
