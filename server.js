@@ -57,7 +57,7 @@ app.post('/api/send-code', async (req, res) => {
     }
   } else {
     console.log(`📟 (محاكاة) رمز ${email}: ${code}`);
-    return res.json({ message: 'تم إرسال الرمز (تحقق من طرفية الخادم).', code }); // احذف code في الإنتاج
+    return res.json({ message: 'تم إرسال الرمز (تحقق من طرفية الخادم).', code });
   }
 });
 
@@ -74,7 +74,7 @@ app.post('/api/verify-code', (req, res) => {
   res.json({ verified: true, message: 'تم التأكيد!' });
 });
 
-// ---------- حالة الغرف (في الذاكرة) ----------
+// ---------- حالة الغرف والمطابقة ----------
 const rooms = new Map();
 const waitingUsers = [];
 const clients = new Map();
@@ -83,16 +83,44 @@ function generateId() {
   return Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
 }
 
+// تحسين: البحث عن شريك متوافق مع تفضيل الجنس
+function findCompatiblePartner(user) {
+  // إذا لم يحدد تفضيل أو اختار "all"، نقبل أي شخص آخر
+  if (!user.preferredGender || user.preferredGender === 'all') {
+    return waitingUsers.find(u => u.id !== user.id);
+  }
+  // يفضل جنسًا محددًا: ابحث عن شخص جنسه مطابق للتفضيل
+  return waitingUsers.find(u => u.id !== user.id && u.gender === user.preferredGender);
+}
+
 function tryMatchRandom() {
   if (waitingUsers.length < 2) return;
-  const user1 = waitingUsers.shift();
-  const user2 = waitingUsers.shift();
-  const role1 = Math.random() < 0.5 ? 'initiator' : 'receiver';
-  const role2 = role1 === 'initiator' ? 'receiver' : 'initiator';
-  user1.socket.partnerId = user2.id;
-  user2.socket.partnerId = user1.id;
-  user1.socket.send(JSON.stringify({ type: 'matched', role: role1, partnerId: user2.id, partnerInfo: { gender: user2.gender } }));
-  user2.socket.send(JSON.stringify({ type: 'matched', role: role2, partnerId: user1.id, partnerInfo: { gender: user1.gender } }));
+
+  // نمسح على المستخدمين لإيجاد زوج متوافق
+  for (let i = 0; i < waitingUsers.length; i++) {
+    const user = waitingUsers[i];
+    const partner = findCompatiblePartner(user);
+    if (partner) {
+      // إزالة الاثنين من قائمة الانتظار
+      waitingUsers.splice(waitingUsers.indexOf(user), 1);
+      waitingUsers.splice(waitingUsers.indexOf(partner), 1);
+
+      const role1 = Math.random() < 0.5 ? 'initiator' : 'receiver';
+      const role2 = role1 === 'initiator' ? 'receiver' : 'initiator';
+      user.socket.partnerId = partner.id;
+      partner.socket.partnerId = user.id;
+      user.socket.send(JSON.stringify({
+        type: 'matched', role: role1, partnerId: partner.id,
+        partnerInfo: { gender: partner.gender }
+      }));
+      partner.socket.send(JSON.stringify({
+        type: 'matched', role: role2, partnerId: user.id,
+        partnerInfo: { gender: user.gender }
+      }));
+      return;
+    }
+  }
+  // لا يوجد تطابق متوافق حاليًا، ننتظر مستخدمين جدد
 }
 
 function removeFromWaiting(socketId) {
@@ -118,10 +146,16 @@ wss.on('connection', (socket) => {
       case 'find':
         if (socket.partnerId) return;
         removeFromWaiting(socket.id);
-        waitingUsers.push({ socket, id: socket.id, gender: data.gender || 'unknown', preferredGender: data.preferredGender || null });
+        waitingUsers.push({
+          socket,
+          id: socket.id,
+          gender: data.gender || 'unknown',
+          preferredGender: data.preferredGender || null
+        });
         socket.send(JSON.stringify({ type: 'searching' }));
         tryMatchRandom();
         break;
+
       case 'next':
         if (socket.partnerId) {
           sendTo(socket.partnerId, { type: 'partnerDisconnected' });
@@ -130,14 +164,21 @@ wss.on('connection', (socket) => {
           socket.partnerId = null;
         }
         removeFromWaiting(socket.id);
-        waitingUsers.push({ socket, id: socket.id, gender: data.gender || 'unknown', preferredGender: data.preferredGender || null });
+        waitingUsers.push({
+          socket,
+          id: socket.id,
+          gender: data.gender || 'unknown',
+          preferredGender: data.preferredGender || null
+        });
         socket.send(JSON.stringify({ type: 'searching' }));
         tryMatchRandom();
         break;
+
       case 'disconnect-random':
         if (socket.partnerId) {
           sendTo(socket.partnerId, { type: 'partnerDisconnected' });
-          clients.get(socket.partnerId).partnerId = null;
+          const partner = clients.get(socket.partnerId);
+          if (partner) partner.partnerId = null;
           socket.partnerId = null;
         }
         removeFromWaiting(socket.id);
@@ -159,6 +200,7 @@ wss.on('connection', (socket) => {
           socket.send(JSON.stringify({ type: 'room-created', roomId }));
         }
         break;
+
       case 'join-room':
         {
           const { roomId } = data;
@@ -167,8 +209,10 @@ wss.on('connection', (socket) => {
             return;
           }
           const room = rooms.get(roomId);
+          // إرسال قائمة الأعضاء الحاليين للعضو الجديد
           const members = Array.from(room);
           socket.send(JSON.stringify({ type: 'room-users', members }));
+          // إعلام باقي الأعضاء
           room.forEach(memberId => {
             if (memberId !== socket.id) sendTo(memberId, { type: 'room-user-joined', userId: socket.id });
           });
@@ -176,6 +220,7 @@ wss.on('connection', (socket) => {
           socket.currentRoom = roomId;
         }
         break;
+
       case 'leave-room':
         {
           const roomId = socket.currentRoom;
