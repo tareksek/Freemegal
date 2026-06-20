@@ -1,8 +1,7 @@
-// app.js - النسخة النهائية المستقرة
 (function() {
   'use strict';
 
-  // ---------- البيانات العامة ----------
+  // ---------- بيانات المستخدم ----------
   const userData = {
     ageConfirmed: false,
     gender: null,
@@ -11,7 +10,7 @@
     preferredGender: null
   };
 
-  // ---------- عناصر DOM الأساسية ----------
+  // عناصر DOM العامة
   const screens = {
     age: document.getElementById('ageScreen'),
     gender: document.getElementById('genderScreen'),
@@ -19,7 +18,7 @@
     chat: document.getElementById('chatScreen')
   };
 
-  // ---------- دوال مساعدة ----------
+  // ---------- وظائف مساعدة ----------
   function showScreen(screenId) {
     Object.keys(screens).forEach(id => {
       screens[id].classList.toggle('active', id === screenId);
@@ -33,10 +32,7 @@
       userData.ageConfirmed = true;
       showScreen('gender');
     });
-
-    document.getElementById('ageNo').addEventListener('click', () => {
-      location.reload();
-    });
+    document.getElementById('ageNo').addEventListener('click', () => location.reload());
 
     document.querySelectorAll('.gender-btn').forEach(btn => {
       btn.addEventListener('click', function() {
@@ -44,7 +40,7 @@
         this.classList.add('selected');
         userData.gender = this.dataset.gender;
         showScreen('pref');
-        initPrefScreen(); // تهيئة أحداث شاشة التفضيلات الآن
+        initPrefScreen();
       });
     });
   }
@@ -69,17 +65,10 @@
 
     sendCodeBtn.addEventListener('click', async () => {
       const email = emailInput.value.trim();
-      if (!email) {
-        emailMsg.textContent = 'أدخل بريداً صحيحاً';
-        return;
-      }
+      if (!email) { emailMsg.textContent = 'أدخل بريداً صحيحاً'; return; }
       emailMsg.textContent = 'جاري الإرسال...';
       try {
-        const res = await fetch('/api/send-code', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
-        });
+        const res = await fetch('/api/send-code', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email}) });
         const data = await res.json();
         if (res.ok) {
           emailMsg.textContent = data.message;
@@ -88,24 +77,15 @@
         } else {
           emailMsg.textContent = data.error || 'فشل';
         }
-      } catch (e) {
-        emailMsg.textContent = 'فشل الاتصال بالخادم.';
-      }
+      } catch(e) { emailMsg.textContent = 'فشل الاتصال بالخادم.'; }
     });
 
     verifyCodeBtn.addEventListener('click', async () => {
       const email = emailInput.value.trim();
       const code = codeInput.value.trim();
-      if (!email || !code) {
-        emailMsg.textContent = 'أدخل البريد والرمز';
-        return;
-      }
+      if (!email || !code) { emailMsg.textContent = 'أدخل البريد والرمز'; return; }
       try {
-        const res = await fetch('/api/verify-code', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, code })
-        });
+        const res = await fetch('/api/verify-code', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, code}) });
         const data = await res.json();
         if (res.ok) {
           userData.emailVerified = true;
@@ -118,17 +98,12 @@
         } else {
           emailMsg.textContent = data.error || 'فشل';
         }
-      } catch (e) {
-        emailMsg.textContent = 'فشل الاتصال بالخادم.';
-      }
+      } catch(e) { emailMsg.textContent = 'فشل الاتصال بالخادم.'; }
     });
 
     document.querySelectorAll('.pref-btn').forEach(btn => {
       btn.addEventListener('click', function() {
-        if (!userData.emailVerified) {
-          alert('يجب تأكيد بريدك الإلكتروني أولاً.');
-          return;
-        }
+        if (!userData.emailVerified) { alert('أكد بريدك أولاً'); return; }
         document.querySelectorAll('.pref-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
         userData.preferredGender = this.dataset.pref;
@@ -136,12 +111,9 @@
     });
 
     goToChatBtn.addEventListener('click', () => {
-      if (!userData.gender) {
-        alert('يرجى اختيار جنسك أولاً.');
-        return;
-      }
+      if (!userData.gender) { alert('اختر جنسك'); return; }
       showScreen('chat');
-      initChatApp(); // تهيئة تطبيق الدردشة
+      initChatApp();
     });
   }
 
@@ -153,7 +125,6 @@
   const groupPeers = new Map();
   let activeTab = 'random';
 
-  // عناصر DOM الخاصة بالدردشة (سنملؤها لاحقاً)
   const dom = {};
 
   function cacheChatDom() {
@@ -190,7 +161,6 @@
     dom.randomFindBtn.disabled = randomState !== 'idle';
     dom.randomNextBtn.disabled = randomState !== 'connected';
     dom.randomDisconnectBtn.disabled = randomState !== 'connected';
-    console.log(`أزرار عشوائي: حالة=${randomState}`);
   }
 
   function setStatus(text) {
@@ -202,16 +172,16 @@
     if (ws && ws.readyState === WebSocket.OPEN) return;
     const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
     ws = new WebSocket(`${protocol}://${location.host}`);
-    ws.onopen = () => console.log('WebSocket مفتوح');
+    ws.onopen = () => console.log('WS مفتوح');
     ws.onmessage = handleWSMessage;
     ws.onclose = () => {
-      console.log('WebSocket مغلق');
+      console.log('WS مغلق');
       setStatus('انقطع الاتصال بالخادم');
       closeRandomPeer();
       randomState = 'idle';
       updateRandomButtons();
     };
-    ws.onerror = (err) => console.error('WebSocket خطأ:', err);
+    ws.onerror = (err) => console.error('WS خطأ:', err);
   }
 
   function handleWSMessage(e) {
@@ -249,6 +219,7 @@
         updateRandomButtons();
         setStatus('جاهز');
         break;
+
       case 'offer':
         if (randomPC) {
           randomPC.setRemoteDescription(new RTCSessionDescription(data.payload))
@@ -260,28 +231,30 @@
         }
         break;
       case 'answer':
-        if (randomPC) {
-          randomPC.setRemoteDescription(new RTCSessionDescription(data.payload)).catch(err => console.error('answer error:', err));
-        }
+        if (randomPC) randomPC.setRemoteDescription(new RTCSessionDescription(data.payload)).catch(err => console.error('answer error:', err));
         break;
       case 'ice-candidate':
-        if (randomPC && data.payload) {
-          randomPC.addIceCandidate(new RTCIceCandidate(data.payload)).catch(err => console.error('ice error:', err));
-        }
+        if (randomPC && data.payload) randomPC.addIceCandidate(new RTCIceCandidate(data.payload)).catch(err => console.error('ice error:', err));
         break;
 
-      // إشارات الغرفة
+      // الغرفة
       case 'room-created':
         groupRoomId = data.roomId;
-        dom.roomLabel.innerHTML = `<i class="fa-solid fa-users"></i> الغرفة: ${groupRoomId}`;
-        dom.leaveRoomBtn.disabled = false;
-        dom.groupChatBox.style.display = 'flex';
+        if (dom.roomLabel) dom.roomLabel.innerHTML = `<i class="fa-solid fa-users"></i> الغرفة: ${groupRoomId}`;
+        if (dom.leaveRoomBtn) dom.leaveRoomBtn.disabled = false;
+        if (dom.groupChatBox) dom.groupChatBox.style.display = 'flex';
         setStatus('في غرفة');
         break;
       case 'room-users':
+        // عند الانضمام، نستلم قائمة الأعضاء
+        if (!groupRoomId) groupRoomId = 'joined-room'; // معرف مؤقت (نتجاهله لأننا نعرف من حدث join)
         data.members.forEach(async memberId => {
           if (memberId !== ws.id) await setupGroupPeer(memberId, true);
         });
+        if (dom.roomLabel && !groupRoomId) dom.roomLabel.innerHTML = `<i class="fa-solid fa-users"></i> الغرفة`;
+        if (dom.leaveRoomBtn) dom.leaveRoomBtn.disabled = false;
+        if (dom.groupChatBox) dom.groupChatBox.style.display = 'flex';
+        setStatus('في غرفة');
         break;
       case 'room-user-joined':
         setupGroupPeer(data.userId, true);
@@ -289,6 +262,7 @@
       case 'room-user-left':
         closeGroupPeer(data.userId);
         break;
+
       case 'group-offer':
         setupGroupPeer(data.from, false).then(async pc => {
           await pc.setRemoteDescription(new RTCSessionDescription(data.payload));
@@ -320,10 +294,10 @@
     if (randomLocalStream) return true;
     try {
       randomLocalStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      if (dom.randomLocal) dom.randomLocal.srcObject = randomLocalStream;
+      dom.randomLocal.srcObject = randomLocalStream;
       return true;
-    } catch (e) {
-      alert('تعذر الوصول إلى الكاميرا والميكروفون');
+    } catch(e) {
+      alert('تعذر الوصول للكاميرا');
       return false;
     }
   }
@@ -332,15 +306,12 @@
     if (randomLocalStream) {
       randomLocalStream.getTracks().forEach(t => t.stop());
       randomLocalStream = null;
-      if (dom.randomLocal) dom.randomLocal.srcObject = null;
+      dom.randomLocal.srcObject = null;
     }
   }
 
   function closeRandomPeer() {
-    if (randomPC) {
-      randomPC.close();
-      randomPC = null;
-    }
+    if (randomPC) { randomPC.close(); randomPC = null; }
     randomDC = null;
     if (dom.randomRemote) dom.randomRemote.srcObject = null;
     randomPartnerId = null;
@@ -353,57 +324,38 @@
   async function startRandomPeer(role) {
     closeRandomPeer();
     randomPC = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
-    if (randomLocalStream) {
-      randomLocalStream.getTracks().forEach(track => randomPC.addTrack(track, randomLocalStream));
-    }
+    randomLocalStream.getTracks().forEach(t => randomPC.addTrack(t, randomLocalStream));
 
-    randomPC.ontrack = (event) => {
-      if (event.streams[0] && dom.randomRemote) {
-        dom.randomRemote.srcObject = event.streams[0];
-        if (dom.noPartnerMessage) dom.noPartnerMessage.style.display = 'none';
+    randomPC.ontrack = e => {
+      if (e.streams[0]) {
+        dom.randomRemote.srcObject = e.streams[0];
+        dom.noPartnerMessage.style.display = 'none';
       }
     };
-
-    randomPC.onicecandidate = (event) => {
-      if (event.candidate && ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: 'ice-candidate', payload: event.candidate }));
-      }
+    randomPC.onicecandidate = e => {
+      if (e.candidate && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'ice-candidate', payload: e.candidate }));
     };
 
     if (role === 'initiator') {
       randomDC = randomPC.createDataChannel('chat');
       setupRandomDC();
     } else {
-      randomPC.ondatachannel = (event) => {
-        randomDC = event.channel;
-        setupRandomDC();
-      };
+      randomPC.ondatachannel = e => { randomDC = e.channel; setupRandomDC(); };
     }
 
     if (role === 'initiator') {
-      try {
-        const offer = await randomPC.createOffer();
-        await randomPC.setLocalDescription(offer);
-        if (ws && ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({ type: 'offer', payload: offer }));
-        }
-      } catch (err) {
-        console.error('خطأ في إنشاء العرض:', err);
-      }
+      const offer = await randomPC.createOffer();
+      await randomPC.setLocalDescription(offer);
+      ws.send(JSON.stringify({ type: 'offer', payload: offer }));
     }
   }
 
   function setupRandomDC() {
-    if (!randomDC) return;
-    randomDC.onmessage = (event) => addRandomMsg(event.data, 'partner');
-    randomDC.onopen = () => {
-      if (dom.randomChatBox) dom.randomChatBox.style.display = 'flex';
-    };
-    randomDC.onclose = () => console.log('Random DC closed');
+    randomDC.onmessage = e => addRandomMsg(e.data, 'partner');
+    randomDC.onopen = () => { dom.randomChatBox.style.display = 'flex'; };
   }
 
   function addRandomMsg(text, sender) {
-    if (!dom.randomMessages) return;
     const div = document.createElement('div');
     div.className = `msg-line ${sender === 'you' ? 'msg-you' : 'msg-partner'}`;
     div.textContent = (sender === 'you' ? 'أنت: ' : 'الشريك: ') + text;
@@ -418,18 +370,12 @@
       groupLocalStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       addGroupVideo('local', groupLocalStream, 'أنت');
       return true;
-    } catch (e) {
-      alert('الكاميرا مطلوبة للغرفة الجماعية');
-      return false;
-    }
+    } catch(e) { alert('الكاميرا مطلوبة'); return false; }
   }
 
   function addGroupVideo(id, stream, label) {
-    if (!dom.groupVideos) return;
-    // إزالة فيديو سابق بنفس id
     const existing = document.getElementById(`video-${id}`);
     if (existing) existing.remove();
-
     const wrapper = document.createElement('div');
     wrapper.className = 'group-video-item';
     wrapper.id = `video-${id}`;
@@ -454,37 +400,27 @@
   async function setupGroupPeer(userId, initiator) {
     closeGroupPeer(userId);
     const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
-    if (groupLocalStream) {
-      groupLocalStream.getTracks().forEach(track => pc.addTrack(track, groupLocalStream));
-    }
+    groupLocalStream.getTracks().forEach(t => pc.addTrack(t, groupLocalStream));
 
-    pc.ontrack = (event) => {
-      if (event.streams[0]) addGroupVideo(userId, event.streams[0], `مستخدم ${userId}`);
+    pc.ontrack = e => {
+      if (e.streams[0]) addGroupVideo(userId, e.streams[0], `مستخدم ${userId}`);
     };
-    pc.onicecandidate = (event) => {
-      if (event.candidate && ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: 'group-ice-candidate', to: userId, payload: event.candidate }));
-      }
+    pc.onicecandidate = e => {
+      if (e.candidate && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'group-ice-candidate', to: userId, payload: e.candidate }));
     };
 
     if (initiator) {
       const dc = pc.createDataChannel('chat');
       setupGroupDC(userId, dc);
     } else {
-      pc.ondatachannel = (event) => setupGroupDC(userId, event.channel);
+      pc.ondatachannel = e => setupGroupDC(userId, e.channel);
     }
 
     groupPeers.set(userId, { pc });
     if (initiator) {
-      try {
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-        if (ws && ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({ type: 'group-offer', to: userId, payload: offer }));
-        }
-      } catch (err) {
-        console.error('خطأ group offer:', err);
-      }
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      ws.send(JSON.stringify({ type: 'group-offer', to: userId, payload: offer }));
     }
     return pc;
   }
@@ -493,7 +429,7 @@
     const peer = groupPeers.get(userId) || {};
     peer.dc = dc;
     groupPeers.set(userId, peer);
-    dc.onmessage = (event) => addGroupMsg(`مستخدم ${userId}`, event.data);
+    dc.onmessage = e => addGroupMsg(`مستخدم ${userId}`, e.data);
   }
 
   function closeGroupPeer(userId) {
@@ -506,30 +442,25 @@
   }
 
   function closeAllGroupPeers() {
-    groupPeers.forEach((peer, id) => closeGroupPeer(id));
+    groupPeers.forEach((_, id) => closeGroupPeer(id));
     groupPeers.clear();
   }
 
   function leaveGroupRoom() {
     if (!groupRoomId) return;
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ type: 'leave-room' }));
-    }
+    if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'leave-room' }));
     closeAllGroupPeers();
-    if (dom.groupVideos) {
-      Array.from(dom.groupVideos.children).forEach(el => {
-        if (el.id !== 'video-local') el.remove();
-      });
-    }
+    Array.from(dom.groupVideos.children).forEach(el => {
+      if (el.id !== 'video-local') el.remove();
+    });
     groupRoomId = null;
-    if (dom.roomLabel) dom.roomLabel.innerHTML = '<i class="fa-solid fa-door-open"></i> لست في غرفة';
-    if (dom.leaveRoomBtn) dom.leaveRoomBtn.disabled = true;
-    if (dom.groupChatBox) dom.groupChatBox.style.display = 'none';
+    dom.roomLabel.innerHTML = '<i class="fa-solid fa-door-open"></i> لست في غرفة';
+    dom.leaveRoomBtn.disabled = true;
+    dom.groupChatBox.style.display = 'none';
     setStatus('خارج غرفة');
   }
 
   function addGroupMsg(sender, text) {
-    if (!dom.groupMessages) return;
     const div = document.createElement('div');
     div.className = 'msg-line';
     div.textContent = `${sender}: ${text}`;
@@ -537,18 +468,14 @@
     dom.groupMessages.scrollTop = dom.groupMessages.scrollHeight;
   }
 
-  // ---------- تبديل التبويب ----------
+  // ---------- تبويبات ----------
   function switchTab(tab) {
     activeTab = tab;
-    if (dom.tabRandom) dom.tabRandom.classList.toggle('active', tab === 'random');
-    if (dom.tabGroup) dom.tabGroup.classList.toggle('active', tab === 'group');
-    if (dom.randomPanel) dom.randomPanel.classList.toggle('active', tab === 'random');
-    if (dom.groupPanel) dom.groupPanel.classList.toggle('active', tab === 'group');
-    if (tab === 'random') {
-      setStatus(randomState === 'idle' ? 'جاهز' : randomState === 'searching' ? 'جاري البحث...' : 'متصل');
-    } else {
-      setStatus(groupRoomId ? 'في غرفة' : 'خارج غرفة');
-    }
+    dom.tabRandom.classList.toggle('active', tab === 'random');
+    dom.tabGroup.classList.toggle('active', tab === 'group');
+    dom.randomPanel.classList.toggle('active', tab === 'random');
+    dom.groupPanel.classList.toggle('active', tab === 'group');
+    setStatus(tab === 'random' ? (randomState === 'idle' ? 'جاهز' : randomState === 'searching' ? 'جاري البحث...' : 'متصل') : (groupRoomId ? 'في غرفة' : 'خارج غرفة'));
   }
 
   // ---------- ربط أحداث الدردشة ----------
@@ -559,20 +486,9 @@
     dom.randomFindBtn.addEventListener('click', async () => {
       if (!await startRandomMedia()) return;
       connectWebSocket();
-      const sendFind = () => {
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({
-            type: 'find',
-            gender: userData.gender,
-            preferredGender: userData.emailVerified ? userData.preferredGender : null
-          }));
-        }
-      };
-      if (ws.readyState === WebSocket.OPEN) {
-        sendFind();
-      } else {
-        ws.addEventListener('open', sendFind, { once: true });
-      }
+      const send = () => ws.send(JSON.stringify({ type: 'find', gender: userData.gender, preferredGender: userData.emailVerified ? userData.preferredGender : null }));
+      if (ws.readyState === WebSocket.OPEN) send();
+      else ws.addEventListener('open', send, { once: true });
       randomState = 'searching';
       updateRandomButtons();
       setStatus('جاري البحث...');
@@ -580,11 +496,7 @@
 
     dom.randomNextBtn.addEventListener('click', () => {
       if (!ws || ws.readyState !== WebSocket.OPEN) return;
-      ws.send(JSON.stringify({
-        type: 'next',
-        gender: userData.gender,
-        preferredGender: userData.emailVerified ? userData.preferredGender : null
-      }));
+      ws.send(JSON.stringify({ type: 'next', gender: userData.gender, preferredGender: userData.emailVerified ? userData.preferredGender : null }));
       closeRandomPeer();
       randomState = 'searching';
       updateRandomButtons();
@@ -616,11 +528,7 @@
       if (!roomId) return;
       connectWebSocket();
       ws.send(JSON.stringify({ type: 'join-room', roomId }));
-      groupRoomId = roomId;
-      dom.roomLabel.innerHTML = `<i class="fa-solid fa-users"></i> الغرفة: ${roomId}`;
-      dom.leaveRoomBtn.disabled = false;
-      dom.groupChatBox.style.display = 'flex';
-      setStatus('في غرفة');
+      // سننتظر الرد 'room-users' قبل تحديث الواجهة
     });
 
     dom.createRoomBtn.addEventListener('click', async () => {
@@ -635,14 +543,20 @@
       const text = dom.groupMsgInput.value.trim();
       if (!text) return;
       groupPeers.forEach(peer => {
-        if (peer.dc && peer.dc.readyState === 'open') {
-          peer.dc.send(text);
-        }
+        if (peer.dc && peer.dc.readyState === 'open') peer.dc.send(text);
       });
       addGroupMsg('أنت', text);
       dom.groupMsgInput.value = '';
     });
   }
+
+  // تنظيف عند مغادرة الصفحة
+  window.addEventListener('beforeunload', () => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      if (randomState === 'connected') ws.send(JSON.stringify({ type: 'disconnect-random' }));
+      if (groupRoomId) ws.send(JSON.stringify({ type: 'leave-room' }));
+    }
+  });
 
   function initChatApp() {
     cacheChatDom();
@@ -652,14 +566,11 @@
     randomState = 'idle';
     updateRandomButtons();
     setStatus('جاهز');
-    console.log('تطبيق الدردشة جاهز');
   }
 
-  // ---------- بدء التطبيق ----------
+  // بدء التطبيق بعد تحميل DOM
   document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM جاهز');
     initStartupScreens();
-    // نعرض شاشة العمر بشكل افتراضي (الـ HTML يجعلها active افتراضياً)
   });
 
 })();
