@@ -1,7 +1,7 @@
 {
-  "name": "random-chat",
+  "name": "random-chat-advanced",
   "version": "1.0.0",
-  "description": "Omegle-like random chat with WebRTC and WebSocket",
+  "description": "Random chat with gender, age check, email verification and preferences",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
