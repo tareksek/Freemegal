@@ -38,16 +38,16 @@
       <h2><i class="fa-solid fa-sliders"></i> التفضيلات</h2>
       <p id="prefStatus">تأكيد بريدك الإلكتروني يفتح تفضيل الجنس.</p>
       <button id="toggleEmailBtn" class="btn outline"><i class="fa-solid fa-envelope"></i> تفعيل التفضيل بالبريد</button>
-      <div id="emailSection" class="email-section">
+      <div id="emailSection" class="email-section" style="display: none;">
         <input type="email" id="emailInput" placeholder="بريدك الإلكتروني" />
         <button id="sendCodeBtn" class="btn secondary"><i class="fa-solid fa-paper-plane"></i> إرسال رمز</button>
-        <div id="codeSection" class="code-section">
+        <div id="codeSection" class="code-section" style="display: none;">
           <input type="text" id="codeInput" placeholder="الرمز السري" />
           <button id="verifyCodeBtn" class="btn primary"><i class="fa-solid fa-check-circle"></i> تأكيد</button>
         </div>
         <div id="emailMsg" class="msg"></div>
       </div>
-      <div id="prefOptions" class="pref-options">
+      <div id="prefOptions" class="pref-options" style="display: none;">
         <label>الجنس المفضل للتحدث معه:</label>
         <div class="btn-group">
           <button class="btn pref-btn" data-pref="male"><i class="fa-solid fa-mars"></i> ذكر</button>
@@ -83,7 +83,7 @@
             <span class="pip-tag">أنت</span>
           </div>
         </div>
-        <div id="randomChatBox" class="chat-box">
+        <div id="randomChatBox" class="chat-box" style="display: none;">
           <div class="messages" id="randomMessages"></div>
           <div class="input-row">
             <input type="text" id="randomMessageInput" placeholder="رسالتك..." />
@@ -110,7 +110,7 @@
             <button id="leaveRoomBtn" class="btn danger small" disabled><i class="fa-solid fa-right-from-bracket"></i> مغادرة</button>
           </div>
           <div class="group-videos" id="groupVideos"></div>
-          <div class="group-chat-box" id="groupChatBox">
+          <div id="groupChatBox" class="group-chat-box" style="display: none;">
             <div class="messages" id="groupMessages"></div>
             <div class="input-row">
               <input type="text" id="groupMessageInput" placeholder="رسالة للجميع..." />
