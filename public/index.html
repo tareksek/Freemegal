@@ -1,84 +1,122 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>دردشة عشوائية عصرية</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>دردشة عشوائية متطورة</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- شاشة العمر -->
+
+  <!-- شاشات التهيئة -->
   <div id="ageScreen" class="screen active">
-    <div class="glass-card">
-      <h2>🔞 تأكيد العمر</h2>
+    <div class="card glass">
+      <h2><i class="fa-solid fa-user-check"></i> تأكيد العمر</h2>
       <p>هل عمرك 18 سنة أو أكثر؟</p>
-      <div class="btn-row">
-        <button id="ageYes" class="modern-btn primary">✅ نعم، أنا +18</button>
-        <button id="ageNo" class="modern-btn danger">❌ لا</button>
+      <div class="btn-group">
+        <button id="ageYes" class="btn primary"><i class="fa-solid fa-check"></i> نعم</button>
+        <button id="ageNo" class="btn danger"><i class="fa-solid fa-xmark"></i> لا</button>
       </div>
     </div>
   </div>
 
-  <!-- شاشة الجنس -->
   <div id="genderScreen" class="screen">
-    <div class="glass-card">
-      <h2>👤 اختر هويتك</h2>
-      <div class="btn-row">
-        <button class="modern-btn gender-btn" data-gender="male">👨 ذكر</button>
-        <button class="modern-btn gender-btn" data-gender="female">👩 أنثى</button>
+    <div class="card glass">
+      <h2><i class="fa-solid fa-venus-mars"></i> اختر جنسك</h2>
+      <div class="btn-group">
+        <button class="btn gender-btn" data-gender="male"><i class="fa-solid fa-mars"></i> ذكر</button>
+        <button class="btn gender-btn" data-gender="female"><i class="fa-solid fa-venus"></i> أنثى</button>
       </div>
     </div>
   </div>
 
-  <!-- شاشة التفضيل والبريد -->
   <div id="prefScreen" class="screen">
-    <div class="glass-card">
-      <h2>⚙️ تفضيلاتك</h2>
-      <p id="prefStatus">تأكيد البريد يفتح لك خيار تفضيل الجنس.</p>
+    <div class="card glass">
+      <h2><i class="fa-solid fa-sliders"></i> التفضيلات</h2>
+      <p id="prefStatus">تأكيد بريدك الإلكتروني يفتح تفضيل الجنس.</p>
+      <button id="toggleEmailBtn" class="btn outline"><i class="fa-solid fa-envelope"></i> تفعيل التفضيل بالبريد</button>
       <div id="emailSection" class="email-section">
-        <input type="email" id="emailInput" placeholder="أدخل بريدك الإلكتروني" />
-        <button id="sendCodeBtn" class="modern-btn secondary">📧 إرسال رمز التأكيد</button>
+        <input type="email" id="emailInput" placeholder="بريدك الإلكتروني" />
+        <button id="sendCodeBtn" class="btn secondary"><i class="fa-solid fa-paper-plane"></i> إرسال رمز</button>
         <div id="codeSection" class="code-section">
-          <input type="text" id="codeInput" placeholder="أدخل الرمز السري" />
-          <button id="verifyCodeBtn" class="modern-btn primary">✓ تأكيد</button>
+          <input type="text" id="codeInput" placeholder="الرمز السري" />
+          <button id="verifyCodeBtn" class="btn primary"><i class="fa-solid fa-check-circle"></i> تأكيد</button>
         </div>
         <div id="emailMsg" class="msg"></div>
       </div>
-      <button id="toggleEmailBtn" class="modern-btn outline">📧 تفعيل تفضيل الجنس (بالبريد)</button>
       <div id="prefOptions" class="pref-options">
         <label>الجنس المفضل للتحدث معه:</label>
-        <div class="btn-row">
-          <button class="modern-btn pref-btn" data-pref="male">👨 ذكر</button>
-          <button class="modern-btn pref-btn" data-pref="female">👩 أنثى</button>
-          <button class="modern-btn pref-btn active" data-pref="all">🌍 الجميع</button>
+        <div class="btn-group">
+          <button class="btn pref-btn" data-pref="male"><i class="fa-solid fa-mars"></i> ذكر</button>
+          <button class="btn pref-btn" data-pref="female"><i class="fa-solid fa-venus"></i> أنثى</button>
+          <button class="btn pref-btn active" data-pref="all"><i class="fa-solid fa-globe"></i> الجميع</button>
         </div>
       </div>
-      <button id="goToChatBtn" class="modern-btn primary" style="margin-top: 25px;">🚀 ابدأ الدردشة</button>
+      <button id="goToChatBtn" class="btn primary"><i class="fa-solid fa-arrow-right-to-bracket"></i> دخول الدردشة</button>
     </div>
   </div>
 
-  <!-- شاشة الدردشة -->
+  <!-- شاشة الدردشة الرئيسية -->
   <div id="chatScreen" class="screen">
-    <div class="chat-app">
-      <video id="remoteVideo" autoplay playsinline class="remote-video"></video>
-      <div id="partnerLabel" class="partner-tag">الشريك</div>
-      <div class="local-video-wrapper">
-        <video id="localVideo" autoplay muted playsinline></video>
-        <span class="local-tag">أنت</span>
+    <div class="app-container">
+      <!-- الشريط العلوي مع تبويبات -->
+      <div class="top-bar">
+        <div class="tabs">
+          <button id="tabRandom" class="tab active"><i class="fa-solid fa-shuffle"></i> عشوائي</button>
+          <button id="tabGroup" class="tab"><i class="fa-solid fa-users"></i> جماعي</button>
+        </div>
+        <div id="statusBadge" class="status-badge">جاهز</div>
       </div>
-      <div id="chatBox" class="chat-panel">
-        <div id="chatMessages" class="messages"></div>
-        <div class="message-input">
-          <input type="text" id="messageInput" placeholder="رسالتك..." />
-          <button id="sendBtn" class="modern-btn primary small">✉️</button>
+
+      <!-- محتوى التبويب العشوائي -->
+      <div id="randomPanel" class="panel active">
+        <div class="video-area">
+          <div class="remote-card">
+            <video id="randomRemote" autoplay playsinline></video>
+            <div id="randomPartnerLabel" class="video-tag">الشريك</div>
+            <div class="no-partner"><i class="fa-solid fa-user-slash"></i> لا يوجد شريك</div>
+          </div>
+          <div class="local-pip">
+            <video id="randomLocal" autoplay muted playsinline></video>
+            <span class="pip-tag">أنت</span>
+          </div>
+        </div>
+        <div id="randomChatBox" class="chat-box">
+          <div class="messages" id="randomMessages"></div>
+          <div class="input-row">
+            <input type="text" id="randomMessageInput" placeholder="رسالتك..." />
+            <button id="randomSendBtn" class="btn small"><i class="fa-solid fa-paper-plane"></i></button>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="randomFindBtn" class="btn primary"><i class="fa-solid fa-search"></i> بحث</button>
+          <button id="randomNextBtn" class="btn secondary" disabled><i class="fa-solid fa-forward"></i> التالي</button>
+          <button id="randomDisconnectBtn" class="btn danger" disabled><i class="fa-solid fa-phone-slash"></i> قطع</button>
         </div>
       </div>
-      <div id="statusBar" class="status-top">جاهز للبحث</div>
-      <div class="bottom-controls">
-        <button id="findBtn" class="modern-btn primary">🔍 بحث</button>
-        <button id="nextBtn" class="modern-btn secondary" disabled>⏭ التالي</button>
-        <button id="disconnectBtn" class="modern-btn danger" disabled>❌ قطع</button>
+
+      <!-- محتوى التبويب الجماعي -->
+      <div id="groupPanel" class="panel">
+        <div class="group-layout">
+          <div class="room-controls">
+            <input type="text" id="roomIdInput" placeholder="معرف الغرفة" />
+            <button id="joinRoomBtn" class="btn primary"><i class="fa-solid fa-right-to-bracket"></i> انضمام</button>
+            <button id="createRoomBtn" class="btn secondary"><i class="fa-solid fa-plus"></i> إنشاء</button>
+          </div>
+          <div class="room-info">
+            <span id="roomLabel"><i class="fa-solid fa-door-open"></i> لست في غرفة</span>
+            <button id="leaveRoomBtn" class="btn danger small" disabled><i class="fa-solid fa-right-from-bracket"></i> مغادرة</button>
+          </div>
+          <div class="group-videos" id="groupVideos"></div>
+          <div class="group-chat-box" id="groupChatBox">
+            <div class="messages" id="groupMessages"></div>
+            <div class="input-row">
+              <input type="text" id="groupMessageInput" placeholder="رسالة للجميع..." />
+              <button id="groupSendBtn" class="btn small"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
