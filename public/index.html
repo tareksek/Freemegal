@@ -4,93 +4,81 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>دردشة عشوائية - متطورة</title>
+  <title>دردشة عشوائية عصرية</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-  <!-- ========== شاشة التحقق من العمر ========== -->
+  <!-- شاشة العمر -->
   <div id="ageScreen" class="screen active">
-    <div class="card">
-      <h2>⚠️ تأكيد العمر</h2>
+    <div class="glass-card">
+      <h2>🔞 تأكيد العمر</h2>
       <p>هل عمرك 18 سنة أو أكثر؟</p>
-      <div class="btn-group">
-        <button id="ageYes" class="btn primary">✅ نعم</button>
-        <button id="ageNo" class="btn danger">❌ لا</button>
+      <div class="btn-row">
+        <button id="ageYes" class="modern-btn primary">✅ نعم، أنا +18</button>
+        <button id="ageNo" class="modern-btn danger">❌ لا</button>
       </div>
     </div>
   </div>
 
-  <!-- ========== شاشة اختيار الجنس ========== -->
+  <!-- شاشة الجنس -->
   <div id="genderScreen" class="screen">
-    <div class="card">
-      <h2>👤 اختر جنسك</h2>
-      <div class="btn-group">
-        <button class="btn gender-btn" data-gender="male">ذكر</button>
-        <button class="btn gender-btn" data-gender="female">أنثى</button>
+    <div class="glass-card">
+      <h2>👤 اختر هويتك</h2>
+      <div class="btn-row">
+        <button class="modern-btn gender-btn" data-gender="male">👨 ذكر</button>
+        <button class="modern-btn gender-btn" data-gender="female">👩 أنثى</button>
       </div>
     </div>
   </div>
 
-  <!-- ========== شاشة تفضيل الجنس (مقفلة حتى تأكيد البريد) ========== -->
+  <!-- شاشة التفضيل والبريد -->
   <div id="prefScreen" class="screen">
-    <div class="card">
-      <h2>🎯 تفضيلات التواصل</h2>
-      <p id="prefStatus">يجب تأكيد بريدك الإلكتروني لتفعيل هذه الميزة.</p>
-      <div id="emailSection" style="display: none;">
-        <input type="email" id="emailInput" placeholder="بريدك الإلكتروني" />
-        <button id="sendCodeBtn" class="btn secondary">📧 إرسال رمز التأكيد</button>
-        <div id="codeSection" style="display: none; margin-top: 15px;">
+    <div class="glass-card">
+      <h2>⚙️ تفضيلاتك</h2>
+      <p id="prefStatus">تأكيد البريد يفتح لك خيار تفضيل الجنس.</p>
+      <div id="emailSection" class="email-section">
+        <input type="email" id="emailInput" placeholder="أدخل بريدك الإلكتروني" />
+        <button id="sendCodeBtn" class="modern-btn secondary">📧 إرسال رمز التأكيد</button>
+        <div id="codeSection" class="code-section">
           <input type="text" id="codeInput" placeholder="أدخل الرمز السري" />
-          <button id="verifyCodeBtn" class="btn primary">✓ تأكيد</button>
+          <button id="verifyCodeBtn" class="modern-btn primary">✓ تأكيد</button>
         </div>
         <div id="emailMsg" class="msg"></div>
       </div>
-      <button id="toggleEmailBtn" class="btn outline">📧 تفعيل التفضيل عبر البريد</button>
-      <div id="prefOptions" style="display: none; margin-top: 20px;">
+      <button id="toggleEmailBtn" class="modern-btn outline">📧 تفعيل تفضيل الجنس (بالبريد)</button>
+      <div id="prefOptions" class="pref-options">
         <label>الجنس المفضل للتحدث معه:</label>
-        <div class="btn-group">
-          <button class="btn pref-btn" data-pref="male">ذكر</button>
-          <button class="btn pref-btn" data-pref="female">أنثى</button>
-          <button class="btn pref-btn active" data-pref="all">الكل</button>
+        <div class="btn-row">
+          <button class="modern-btn pref-btn" data-pref="male">👨 ذكر</button>
+          <button class="modern-btn pref-btn" data-pref="female">👩 أنثى</button>
+          <button class="modern-btn pref-btn active" data-pref="all">🌍 الجميع</button>
         </div>
       </div>
-      <button id="goToChatBtn" class="btn primary" style="margin-top: 25px;">🚀 دخول الدردشة</button>
+      <button id="goToChatBtn" class="modern-btn primary" style="margin-top: 25px;">🚀 ابدأ الدردشة</button>
     </div>
   </div>
 
-  <!-- ========== شاشة الدردشة الرئيسية ========== -->
+  <!-- شاشة الدردشة -->
   <div id="chatScreen" class="screen">
-    <div class="chat-layout">
-      <!-- فيديو الشريك كبير -->
-      <div class="remote-video-container">
-        <video id="remoteVideo" autoplay playsinline></video>
-        <div id="partnerLabel" class="partner-label">الشريك</div>
-      </div>
-
-      <!-- فيديو المستخدم صغير أسفل اليمين -->
-      <div class="local-video-container">
+    <div class="chat-app">
+      <video id="remoteVideo" autoplay playsinline class="remote-video"></video>
+      <div id="partnerLabel" class="partner-tag">الشريك</div>
+      <div class="local-video-wrapper">
         <video id="localVideo" autoplay muted playsinline></video>
-        <div class="local-label">أنت</div>
+        <span class="local-tag">أنت</span>
       </div>
-
-      <!-- صندوق الدردشة النصية -->
-      <div id="chatBox" class="chat-box">
-        <div id="chatMessages" class="chat-messages"></div>
-        <div class="chat-input-area">
-          <input type="text" id="messageInput" placeholder="اكتب رسالة..." />
-          <button id="sendBtn" class="btn small">✉️</button>
+      <div id="chatBox" class="chat-panel">
+        <div id="chatMessages" class="messages"></div>
+        <div class="message-input">
+          <input type="text" id="messageInput" placeholder="رسالتك..." />
+          <button id="sendBtn" class="modern-btn primary small">✉️</button>
         </div>
       </div>
-
-      <!-- شريط الحالة العلوي -->
-      <div id="statusBar" class="status-bar">جاهز للبحث</div>
-
-      <!-- أزرار التحكم السفلية -->
-      <div class="controls-bar">
-        <button id="findBtn" class="btn primary">🔍 البحث عن شريك</button>
-        <button id="nextBtn" class="btn secondary" disabled>⏭ التالي</button>
-        <button id="disconnectBtn" class="btn danger" disabled>❌ قطع</button>
+      <div id="statusBar" class="status-top">جاهز للبحث</div>
+      <div class="bottom-controls">
+        <button id="findBtn" class="modern-btn primary">🔍 بحث</button>
+        <button id="nextBtn" class="modern-btn secondary" disabled>⏭ التالي</button>
+        <button id="disconnectBtn" class="modern-btn danger" disabled>❌ قطع</button>
       </div>
     </div>
   </div>
