@@ -1,5 +1,5 @@
 
-// app.js - نسخة محسنة مع معالجة الأخطاء وسجلات console للمساعدة
+// app.js - نسخة محسنة مع تصحيح حالة الأزرار
 
 // عناصر DOM
 const statusDiv = document.getElementById('status');
@@ -13,40 +13,62 @@ const findBtn = document.getElementById('findBtn');
 const nextBtn = document.getElementById('nextBtn');
 const disconnectBtn = document.getElementById('disconnectBtn');
 
-// متغيرات عامة
+// الحالات الممكنة
+const State = {
+  IDLE: 'idle',
+  SEARCHING: 'searching',
+  CONNECTED: 'connected',
+  DISCONNECTED: 'disconnected'
+};
+
+let currentState = State.IDLE;
+
+// متغيرات الاتصال
 let ws = null;
 let localStream = null;
 let pc = null;
 let dataChannel = null;
 let partnerId = null;
-let isConnected = false;
 
 const configuration = {
   iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
 };
 
-// ---------- دوال تحديث الواجهة ----------
+// ---------- دوال الواجهة ----------
 function setStatus(text) {
   statusDiv.textContent = text;
   console.log('Status:', text);
 }
 
+function setState(newState) {
+  currentState = newState;
+  updateButtons();
+}
+
 function updateButtons() {
-  const searching = statusDiv.textContent.includes('البحث');
-  if (isConnected) {
-    findBtn.disabled = true;
-    nextBtn.disabled = false;
-    disconnectBtn.disabled = false;
-  } else if (searching) {
-    findBtn.disabled = true;
-    nextBtn.disabled = true;
-    disconnectBtn.disabled = true;
-  } else {
-    findBtn.disabled = false;
-    nextBtn.disabled = true;
-    disconnectBtn.disabled = true;
+  switch (currentState) {
+    case State.IDLE:
+      findBtn.disabled = false;
+      nextBtn.disabled = true;
+      disconnectBtn.disabled = true;
+      break;
+    case State.SEARCHING:
+      findBtn.disabled = true;
+      nextBtn.disabled = true;
+      disconnectBtn.disabled = true;
+      break;
+    case State.CONNECTED:
+      findBtn.disabled = true;
+      nextBtn.disabled = false;
+      disconnectBtn.disabled = false;
+      break;
+    case State.DISCONNECTED:
+      findBtn.disabled = false;
+      nextBtn.disabled = true;
+      disconnectBtn.disabled = true;
+      break;
   }
-  console.log('Buttons updated - Find:', findBtn.disabled, 'Next:', nextBtn.disabled, 'Disconnect:', disconnectBtn.disabled);
+  console.log(`State: ${currentState} - Find: ${findBtn.disabled}, Next: ${nextBtn.disabled}, Disconnect: ${disconnectBtn.disabled}`);
 }
 
 function toggleChat(show) {
@@ -74,7 +96,7 @@ function sendChatMessage(text) {
   }
 }
 
-// ---------- تنظيف اتصال WebRTC ----------
+// ---------- WebRTC ----------
 function closePeerConnection() {
   if (pc) {
     pc.close();
@@ -85,19 +107,16 @@ function closePeerConnection() {
     remoteVideo.srcObject.getTracks().forEach(track => track.stop());
     remoteVideo.srcObject = null;
   }
-  isConnected = false;
   toggleChat(false);
   messagesDiv.innerHTML = '';
 }
 
-// ---------- بدء WebRTC ----------
 async function startPeerConnection(role) {
   closePeerConnection();
 
   pc = new RTCPeerConnection(configuration);
   console.log('RTCPeerConnection created');
 
-  // إضافة المسارات المحلية
   if (localStream) {
     localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
   }
@@ -115,7 +134,6 @@ async function startPeerConnection(role) {
     }
   };
 
-  // DataChannel للدردشة
   if (role === 'initiator') {
     dataChannel = pc.createDataChannel('chat');
     setupDataChannel();
@@ -136,6 +154,7 @@ async function startPeerConnection(role) {
     } catch (err) {
       console.error('Error creating offer:', err);
       setStatus('فشل إنشاء الاتصال');
+      setState(State.IDLE);
     }
   }
 }
@@ -153,9 +172,9 @@ function setupDataChannel() {
   };
 }
 
-// ---------- تشغيل الكاميرا والميكروفون ----------
+// ---------- الوسائط ----------
 async function startMedia() {
-  if (localStream) return true; // تم التشغيل مسبقاً
+  if (localStream) return true;
 
   try {
     localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -169,7 +188,6 @@ async function startMedia() {
   }
 }
 
-// إيقاف الكاميرا
 function stopLocalStream() {
   if (localStream) {
     localStream.getTracks().forEach(track => track.stop());
@@ -188,7 +206,6 @@ function connectWebSocket() {
 
   ws.onopen = () => {
     console.log('WebSocket open');
-    // في حالة كان هناك طلب pending (find) بعد الفتح مباشرة
   };
 
   ws.onmessage = async (event) => {
@@ -198,22 +215,21 @@ function connectWebSocket() {
     switch (data.type) {
       case 'searching':
         setStatus('🔎 جاري البحث عن شخص...');
-        updateButtons();
+        setState(State.SEARCHING);
         break;
 
       case 'matched':
         partnerId = data.partnerId;
         setStatus('🎉 تم العثور على شخص! جاري إنشاء الاتصال...');
-        isConnected = true;
         await startPeerConnection(data.role);
         setStatus('✅ متصل - يمكنك الدردشة');
-        updateButtons();
+        setState(State.CONNECTED);
         break;
 
       case 'partnerDisconnected':
         setStatus('❌ انقطع الاتصال بالشريك.');
         closePeerConnection();
-        updateButtons();
+        setState(State.IDLE);
         partnerId = null;
         break;
 
@@ -221,7 +237,7 @@ function connectWebSocket() {
         setStatus('تم قطع الاتصال.');
         closePeerConnection();
         stopLocalStream();
-        updateButtons();
+        setState(State.IDLE);
         partnerId = null;
         break;
 
@@ -262,7 +278,7 @@ function connectWebSocket() {
 
       case 'error':
         setStatus(`⚠️ ${data.message}`);
-        updateButtons();
+        setState(State.IDLE);
         break;
     }
   };
@@ -276,20 +292,18 @@ function connectWebSocket() {
     console.log('WebSocket closed');
     setStatus('انقطع الاتصال بالخادم.');
     closePeerConnection();
-    updateButtons();
+    setState(State.IDLE);
   };
 }
 
 // ---------- ربط الأحداث ----------
 findBtn.addEventListener('click', async () => {
   console.log('Find button clicked');
-  // بدء الوسائط إذا لم تكن موجودة
   const mediaOk = await startMedia();
   if (!mediaOk) return;
 
   connectWebSocket();
 
-  // انتظر حتى يكون WebSocket مفتوحاً ثم أرسل find
   const sendFind = () => {
     if (ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({ type: 'find' }));
@@ -314,7 +328,7 @@ nextBtn.addEventListener('click', () => {
     ws.send(JSON.stringify({ type: 'next' }));
     closePeerConnection();
     setStatus('🔎 جاري البحث عن شخص جديد...');
-    updateButtons();
+    setState(State.SEARCHING);
   }
 });
 
@@ -324,7 +338,7 @@ disconnectBtn.addEventListener('click', () => {
     closePeerConnection();
     stopLocalStream();
     setStatus('تم قطع الاتصال.');
-    updateButtons();
+    setState(State.IDLE);
   }
 });
 
@@ -343,11 +357,10 @@ messageInput.addEventListener('keypress', (e) => {
 // عند التحميل
 window.addEventListener('load', () => {
   console.log('Page loaded');
-  // تأكد من وجود العناصر
   if (!findBtn || !statusDiv) {
     console.error('Critical DOM elements missing');
     return;
   }
-  setStatus('اضغط "البحث عن شريك" للبدء');
-  updateButtons();
+  setStatus('جاهز للبحث');
+  setState(State.IDLE);
 });
