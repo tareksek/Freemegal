@@ -14,7 +14,6 @@ body {
   overflow: hidden;
 }
 
-/* خلفية متحركة خفيفة */
 body::before {
   content: '';
   position: fixed;
@@ -23,7 +22,6 @@ body::before {
   z-index: -1;
 }
 
-/* ---------- الشاشات العامة ---------- */
 .screen {
   display: none;
   position: fixed;
@@ -35,7 +33,6 @@ body::before {
   display: flex;
 }
 
-/* ---------- بطاقات زجاجية للشاشات الأولى ---------- */
 .card.glass {
   background: rgba(255, 255, 255, 0.07);
   backdrop-filter: blur(20px);
@@ -52,7 +49,6 @@ body::before {
   margin-bottom: 10px;
 }
 
-/* ---------- أزرار عامة ---------- */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -130,7 +126,7 @@ input::placeholder {
   font-size: 0.9rem;
 }
 
-/* ---------- شاشة الدردشة ---------- */
+/* تطبيق الدردشة */
 .app-container {
   width: 100%;
   height: 100%;
@@ -140,7 +136,6 @@ input::placeholder {
   backdrop-filter: blur(15px);
 }
 
-/* الشريط العلوي */
 .top-bar {
   display: flex;
   align-items: center;
@@ -181,10 +176,8 @@ input::placeholder {
   padding: 6px 18px;
   border-radius: 20px;
   font-size: 0.9rem;
-  font-weight: 500;
 }
 
-/* الألواح (التبويبات) */
 .panel {
   display: none;
   flex: 1;
@@ -195,7 +188,7 @@ input::placeholder {
   display: flex;
 }
 
-/* ---------- التبويب العشوائي ---------- */
+/* العشوائي */
 .video-area {
   flex: 1;
   position: relative;
@@ -240,7 +233,6 @@ input::placeholder {
   padding: 5px 15px;
   border-radius: 20px;
   font-size: 0.9rem;
-  display: block; /* أظهر فقط عند وجود شريك */
 }
 
 .local-pip {
@@ -324,7 +316,7 @@ input::placeholder {
   flex-shrink: 0;
 }
 
-/* ---------- التبويب الجماعي ---------- */
+/* الجماعي */
 .group-layout {
   display: flex;
   flex-direction: column;
@@ -371,7 +363,6 @@ input::placeholder {
   height: 100%;
   object-fit: cover;
 }
-
 .group-chat-box {
   background: rgba(0, 0, 0, 0.6);
   margin: 5px;
@@ -382,7 +373,6 @@ input::placeholder {
   flex-shrink: 0;
 }
 
-/* توافق مع الجوال */
 @media (max-width: 768px) {
   .remote-card {
     width: 95%;
