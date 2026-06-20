@@ -9,7 +9,7 @@
 </head>
 <body>
 
-  <!-- شاشات التهيئة -->
+  <!-- شاشة العمر -->
   <div id="ageScreen" class="screen active">
     <div class="card glass">
       <h2><i class="fa-solid fa-user-check"></i> تأكيد العمر</h2>
@@ -21,6 +21,7 @@
     </div>
   </div>
 
+  <!-- شاشة الجنس -->
   <div id="genderScreen" class="screen">
     <div class="card glass">
       <h2><i class="fa-solid fa-venus-mars"></i> اختر جنسك</h2>
@@ -31,6 +32,7 @@
     </div>
   </div>
 
+  <!-- شاشة التفضيلات -->
   <div id="prefScreen" class="screen">
     <div class="card glass">
       <h2><i class="fa-solid fa-sliders"></i> التفضيلات</h2>
@@ -57,10 +59,9 @@
     </div>
   </div>
 
-  <!-- شاشة الدردشة الرئيسية -->
+  <!-- شاشة الدردشة -->
   <div id="chatScreen" class="screen">
     <div class="app-container">
-      <!-- الشريط العلوي مع تبويبات -->
       <div class="top-bar">
         <div class="tabs">
           <button id="tabRandom" class="tab active"><i class="fa-solid fa-shuffle"></i> عشوائي</button>
@@ -69,13 +70,13 @@
         <div id="statusBadge" class="status-badge">جاهز</div>
       </div>
 
-      <!-- محتوى التبويب العشوائي -->
+      <!-- تبويب العشوائي -->
       <div id="randomPanel" class="panel active">
         <div class="video-area">
           <div class="remote-card">
             <video id="randomRemote" autoplay playsinline></video>
-            <div id="randomPartnerLabel" class="video-tag">الشريك</div>
-            <div class="no-partner"><i class="fa-solid fa-user-slash"></i> لا يوجد شريك</div>
+            <div id="randomPartnerLabel" class="video-tag" style="display:none;"></div>
+            <div id="noPartnerMessage" class="no-partner"><i class="fa-solid fa-user-slash"></i> لا يوجد شريك</div>
           </div>
           <div class="local-pip">
             <video id="randomLocal" autoplay muted playsinline></video>
@@ -96,7 +97,7 @@
         </div>
       </div>
 
-      <!-- محتوى التبويب الجماعي -->
+      <!-- تبويب الجماعي -->
       <div id="groupPanel" class="panel">
         <div class="group-layout">
           <div class="room-controls">
