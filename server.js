@@ -7,7 +7,7 @@ const WebSocket = require('ws');
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-
+const path = require('path');
 // تقديم الملفات الثابتة من مجلد public
 app.use(express.static('public'));
 
