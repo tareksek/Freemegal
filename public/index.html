@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>دردشة عشوائية</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>دردشة عشوائية 🎲</h1>
+    
+    <!-- حالة الاتصال -->
+    <div id="status" class="status">اضغط "البحث عن شريك" للبدء</div>
+
+    <!-- حاويات الفيديو -->
+    <div class="videos">
+      <div class="video-wrapper">
+        <video id="localVideo" autoplay muted playsinline></video>
+        <span class="video-label">أنت</span>
+      </div>
+      <div class="video-wrapper">
+        <video id="remoteVideo" autoplay playsinline></video>
+        <span class="video-label">الشريك</span>
+      </div>
+    </div>
+
+    <!-- صندوق الدردشة النصية -->
+    <div id="chatContainer" class="chat-container" style="display: none;">
+      <div id="messages" class="messages"></div>
+      <div class="chat-input">
+        <input type="text" id="messageInput" placeholder="اكتب رسالة..." />
+        <button id="sendBtn">إرسال</button>
+      </div>
+    </div>
+
+    <!-- أزرار التحكم -->
+    <div class="controls">
+      <button id="findBtn" class="btn primary">🔍 البحث عن شريك</button>
+      <button id="nextBtn" class="btn secondary" disabled>⏭ التالي</button>
+      <button id="disconnectBtn" class="btn danger" disabled>❌ قطع الاتصال</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
