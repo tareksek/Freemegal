@@ -1,0 +1,13 @@
+{
+  "name": "random-chat",
+  "version": "1.0.0",
+  "description": "Omegle-like random chat with WebRTC and WebSocket",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ws": "^8.13.0"
+  }
+}
