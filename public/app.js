@@ -1,6 +1,38 @@
 (function() {
   'use strict';
 
+  // ---------- خوادم ICE محسّنة (STUN + TURN مجاني) ----------
+  const iceConfig = {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      {
+        urls: 'turn:openrelay.metered.ca:80',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      },
+      {
+        urls: 'turn:openrelay.metered.ca:443',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      }
+    ]
+  };
+
+  // إعدادات الوسائط المثلى
+  const mediaConstraints = {
+    video: {
+      width: { ideal: 640 },
+      height: { ideal: 480 },
+      frameRate: { ideal: 20 }
+    },
+    audio: {
+      echoCancellation: true,
+      noiseSuppression: true,
+      autoGainControl: true
+    }
+  };
+
   // ---------- قاموس الترجمة ----------
   const translations = {
     ar: {
@@ -57,6 +89,7 @@
       langCode: 'en',
       error: 'حدث خطأ',
       codeSentDev: 'رمز التأكيد (للتطوير): ',
+      headphoneTip: '🎧 نصيحة: استخدم سماعة رأس لتجنب الصدى.'
     },
     en: {
       pageTitle: 'Advanced Random Chat',
@@ -112,6 +145,7 @@
       langCode: 'ar',
       error: 'An error occurred',
       codeSentDev: 'Verification code (dev): ',
+      headphoneTip: '🎧 Tip: Use headphones to avoid echo.'
     }
   };
 
@@ -121,7 +155,6 @@
     return translations[currentLang]?.[key] || translations.ar[key] || key;
   }
 
-  // تحديث جميع النصوص الثابتة في الصفحة
   function applyStaticTranslations() {
     document.title = t('pageTitle');
 
@@ -161,13 +194,11 @@
       if (el) el.textContent = t(key);
     }
 
-    // prefStatus خاص
     const prefStatusEl = document.getElementById('prefStatus');
     if (prefStatusEl && !prefStatusEl.dataset.dynamic) {
       prefStatusEl.textContent = t('prefStatusDefault');
     }
 
-    // placeholders
     document.getElementById('emailInput').placeholder = t('emailPlaceholder');
     document.getElementById('codeInput').placeholder = t('codePlaceholder');
     document.getElementById('randomMessageInput').placeholder = t('randomMsgPlaceholder');
@@ -186,10 +217,8 @@
   }
 
   function updateDynamicTexts() {
-    // تحديث النصوص التي قد تتغير بعد العرض الأول
     if (currentScreen === 'chat') {
       setStatus(getStatusText());
-      // تحديث تسميات الأزرار (قد يكون بعضها تم تغييره ديناميكيًا)
       document.getElementById('tabRandomText').textContent = t('tabRandom');
       document.getElementById('tabGroupText').textContent = t('tabGroup');
       document.getElementById('findBtnText').textContent = t('find');
@@ -202,7 +231,6 @@
       document.getElementById('noPartnerText').textContent = t('noPartner');
       document.getElementById('youTag').textContent = t('you');
 
-      // تحديث تسمية الغرفة إن وجدت
       const roomLabel = document.getElementById('roomLabel');
       if (roomLabel) {
         if (groupRoomId) {
@@ -211,14 +239,9 @@
           roomLabel.innerHTML = `<i class="fa-solid fa-door-open"></i> ${t('notInRoom')}`;
         }
       }
-
-      // تحديث نص الشريك إن وجد
       if (randomPartnerId && dom.randomPartnerLabel) {
-        const gender = randomPartnerGender || 'unknown';
-        dom.randomPartnerLabel.textContent = `${t('partner')} (${gender})`;
+        dom.randomPartnerLabel.textContent = `${t('partner')} (${randomPartnerGender || 'unknown'})`;
       }
-
-      // تحديث نصوص الرسائل القديمة؟ يمكن إعادة بناء آخر رسالة ولكن نص "أنت" و"الشريك" سيبقى كما هو حتى الرسائل الجديدة.
     }
   }
 
@@ -345,6 +368,8 @@
 
     goToChatBtn.addEventListener('click', () => {
       if (!userData.gender) { alert(t('genderRequired')); return; }
+      // تنبيه السماعة
+      alert(t('headphoneTip'));
       showScreen('chat');
       initChatApp();
     });
@@ -516,11 +541,11 @@
     }
   }
 
-  // ---------- وسائط عشوائي ----------
+  // ---------- وسائط عشوائي (مُحسَّنة) ----------
   async function startRandomMedia() {
     if (randomLocalStream) return true;
     try {
-      randomLocalStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      randomLocalStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
       dom.randomLocal.srcObject = randomLocalStream;
       return true;
     } catch(e) {
@@ -551,7 +576,7 @@
 
   async function startRandomPeer(role) {
     closeRandomPeer();
-    randomPC = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+    randomPC = new RTCPeerConnection(iceConfig);   // <-- TURN + STUN
     randomLocalStream.getTracks().forEach(t => randomPC.addTrack(t, randomLocalStream));
 
     randomPC.ontrack = e => {
@@ -591,11 +616,11 @@
     dom.randomMessages.scrollTop = dom.randomMessages.scrollHeight;
   }
 
-  // ---------- وسائط جماعي ----------
+  // ---------- وسائط جماعي (مُحسَّنة) ----------
   async function startGroupMedia() {
     if (groupLocalStream) return true;
     try {
-      groupLocalStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      groupLocalStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
       addGroupVideo('local', groupLocalStream, t('youLabel'));
       return true;
     } catch(e) { alert(t('mediaError')); return false; }
@@ -627,7 +652,7 @@
 
   async function setupGroupPeer(userId, initiator) {
     closeGroupPeer(userId);
-    const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+    const pc = new RTCPeerConnection(iceConfig);   // <-- TURN + STUN
     groupLocalStream.getTracks().forEach(t => pc.addTrack(t, groupLocalStream));
 
     pc.ontrack = e => {
@@ -788,16 +813,15 @@
     cacheChatDom();
     bindChatEvents();
     connectWebSocket();
-    applyStaticTranslations(); // تأكد من ترجمة شاشة الدردشة
+    applyStaticTranslations();
     switchTab('random');
     randomState = 'idle';
     updateRandomButtons();
     setStatus(t('statusReady'));
   }
 
-  // بدء التطبيق
   document.addEventListener('DOMContentLoaded', () => {
-    applyStaticTranslations(); // الشاشات الأولى
+    applyStaticTranslations();
     initStartupScreens();
   });
 
