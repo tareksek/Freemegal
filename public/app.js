@@ -1,9 +1,10 @@
 (function() {
   'use strict';
 
-  // ---------- نظام الترجمة ----------
+  // ---------- قاموس الترجمة ----------
   const translations = {
     ar: {
+      pageTitle: 'دردشة عشوائية متطورة',
       ageTitle: 'تأكيد العمر',
       ageQuestion: 'هل عمرك 18 سنة أو أكثر؟',
       yes: 'نعم',
@@ -53,9 +54,12 @@
       partnerLabel: 'الشريك',
       user: 'مستخدم',
       langBtn: 'English',
-      langCode: 'en'
+      langCode: 'en',
+      error: 'حدث خطأ',
+      codeSentDev: 'رمز التأكيد (للتطوير): ',
     },
     en: {
+      pageTitle: 'Advanced Random Chat',
       ageTitle: 'Age Verification',
       ageQuestion: 'Are you 18 years or older?',
       yes: 'Yes',
@@ -105,7 +109,9 @@
       partnerLabel: 'Partner',
       user: 'User',
       langBtn: 'العربية',
-      langCode: 'ar'
+      langCode: 'ar',
+      error: 'An error occurred',
+      codeSentDev: 'Verification code (dev): ',
     }
   };
 
@@ -115,47 +121,59 @@
     return translations[currentLang]?.[key] || translations.ar[key] || key;
   }
 
+  // تحديث جميع النصوص الثابتة في الصفحة
   function applyStaticTranslations() {
-    // تحديث جميع العناصر التي تحمل id مطابق للمفاتيح (مبسطة)
-    const ids = [
-      'ageTitle','ageQuestion','ageYesText','ageNoText',
-      'genderTitle','maleText','femaleText',
-      'prefTitle','prefStatus','toggleEmailText','sendCodeText','verifyCodeText',
-      'prefLabel','prefMaleText','prefFemaleText','prefAllText','goToChatText',
-      'tabRandomText','tabGroupText','langText',
-      'noPartnerText','youTag','findBtnText','nextBtnText','disconnectBtnText',
-      'joinRoomText','createRoomText','leaveRoomText','notInRoomText'
-    ];
-    ids.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        if (id === 'prefStatus') {
-          // prefStatus يحمل نصًا ديناميكيًا أحيانًا، لكن نبدأ بالافتراضي
-          if (!el.dataset.dynamic) el.textContent = t('prefStatusDefault');
-        } else {
-          el.textContent = t(id.replace(/Text$/,'').replace(/^maleText$/,'male').replace(/^femaleText$/,'female') );
-        }
-      }
-    });
+    document.title = t('pageTitle');
 
-    // تحديث الخصائص placeholder
+    const textIds = {
+      'ageTitle': 'ageTitle',
+      'ageQuestion': 'ageQuestion',
+      'ageYesText': 'yes',
+      'ageNoText': 'no',
+      'genderTitle': 'genderTitle',
+      'maleText': 'male',
+      'femaleText': 'female',
+      'prefTitle': 'prefTitle',
+      'toggleEmailText': 'toggleEmail',
+      'sendCodeText': 'sendCode',
+      'verifyCodeText': 'verifyCode',
+      'prefLabel': 'prefLabel',
+      'prefMaleText': 'male',
+      'prefFemaleText': 'female',
+      'prefAllText': 'all',
+      'goToChatText': 'goToChat',
+      'tabRandomText': 'tabRandom',
+      'tabGroupText': 'tabGroup',
+      'langText': 'langBtn',
+      'noPartnerText': 'noPartner',
+      'youTag': 'you',
+      'findBtnText': 'find',
+      'nextBtnText': 'next',
+      'disconnectBtnText': 'disconnect',
+      'joinRoomText': 'joinRoom',
+      'createRoomText': 'createRoom',
+      'leaveRoomText': 'leaveRoom',
+      'notInRoomText': 'notInRoom'
+    };
+
+    for (const [elId, key] of Object.entries(textIds)) {
+      const el = document.getElementById(elId);
+      if (el) el.textContent = t(key);
+    }
+
+    // prefStatus خاص
+    const prefStatusEl = document.getElementById('prefStatus');
+    if (prefStatusEl && !prefStatusEl.dataset.dynamic) {
+      prefStatusEl.textContent = t('prefStatusDefault');
+    }
+
+    // placeholders
     document.getElementById('emailInput').placeholder = t('emailPlaceholder');
     document.getElementById('codeInput').placeholder = t('codePlaceholder');
     document.getElementById('randomMessageInput').placeholder = t('randomMsgPlaceholder');
     document.getElementById('groupMessageInput').placeholder = t('groupMsgPlaceholder');
     document.getElementById('roomIdInput').placeholder = t('roomIdPlaceholder');
 
-    // تحديث حالة prefStatus إذا لم يتغير ديناميكيًا
-    const prefStatusEl = document.getElementById('prefStatus');
-    if (prefStatusEl && !prefStatusEl.dataset.dynamic) {
-      prefStatusEl.textContent = t('prefStatusDefault');
-    }
-
-    // تحديث نص زر اللغة
-    const langBtn = document.getElementById('langText');
-    if (langBtn) langBtn.textContent = t('langBtn');
-
-    // تحديث اتجاه الصفحة
     document.documentElement.lang = currentLang;
     document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
   }
@@ -164,18 +182,16 @@
     currentLang = currentLang === 'ar' ? 'en' : 'ar';
     localStorage.setItem('lang', currentLang);
     applyStaticTranslations();
-    // تحديث النصوص الديناميكية (الحالة، الأزرار، إلخ)
     updateDynamicTexts();
   }
 
   function updateDynamicTexts() {
-    // تحديث نص حالة الدردشة إن كانت مرئية
+    // تحديث النصوص التي قد تتغير بعد العرض الأول
     if (currentScreen === 'chat') {
       setStatus(getStatusText());
-      // تحديث تسميات التبويب إذا تغيرت
+      // تحديث تسميات الأزرار (قد يكون بعضها تم تغييره ديناميكيًا)
       document.getElementById('tabRandomText').textContent = t('tabRandom');
       document.getElementById('tabGroupText').textContent = t('tabGroup');
-      // تحديث أزرار التحكم
       document.getElementById('findBtnText').textContent = t('find');
       document.getElementById('nextBtnText').textContent = t('next');
       document.getElementById('disconnectBtnText').textContent = t('disconnect');
@@ -183,15 +199,26 @@
       document.getElementById('createRoomText').textContent = t('createRoom');
       document.getElementById('leaveRoomText').textContent = t('leaveRoom');
       document.getElementById('notInRoomText').textContent = t('notInRoom');
-      // تحديث تسمية "لا يوجد شريك" إن وجدت
       document.getElementById('noPartnerText').textContent = t('noPartner');
       document.getElementById('youTag').textContent = t('you');
-      // تحديث رسائل الغرفة
-      if (groupRoomId) {
-        document.getElementById('roomLabel').innerHTML = `<i class="fa-solid fa-users"></i> ${t('statusInRoom')} : ${groupRoomId}`;
-      } else {
-        document.getElementById('roomLabel').innerHTML = `<i class="fa-solid fa-door-open"></i> ${t('notInRoom')}`;
+
+      // تحديث تسمية الغرفة إن وجدت
+      const roomLabel = document.getElementById('roomLabel');
+      if (roomLabel) {
+        if (groupRoomId) {
+          roomLabel.innerHTML = `<i class="fa-solid fa-users"></i> ${t('statusInRoom')} : ${groupRoomId}`;
+        } else {
+          roomLabel.innerHTML = `<i class="fa-solid fa-door-open"></i> ${t('notInRoom')}`;
+        }
       }
+
+      // تحديث نص الشريك إن وجد
+      if (randomPartnerId && dom.randomPartnerLabel) {
+        const gender = randomPartnerGender || 'unknown';
+        dom.randomPartnerLabel.textContent = `${t('partner')} (${gender})`;
+      }
+
+      // تحديث نصوص الرسائل القديمة؟ يمكن إعادة بناء آخر رسالة ولكن نص "أنت" و"الشريك" سيبقى كما هو حتى الرسائل الجديدة.
     }
   }
 
@@ -327,6 +354,7 @@
   let ws = null;
   let randomState = 'idle';
   let randomLocalStream = null, randomPC = null, randomDC = null, randomPartnerId = null;
+  let randomPartnerGender = null;
   let groupLocalStream = null, groupRoomId = null;
   const groupPeers = new Map();
   let activeTab = 'random';
@@ -399,8 +427,9 @@
         break;
       case 'matched':
         randomPartnerId = data.partnerId;
+        randomPartnerGender = data.partnerInfo.gender;
         if (dom.randomPartnerLabel) {
-          dom.randomPartnerLabel.textContent = `${t('partner')} (${data.partnerInfo.gender})`;
+          dom.randomPartnerLabel.textContent = `${t('partner')} (${randomPartnerGender})`;
           dom.randomPartnerLabel.style.display = 'block';
         }
         if (dom.noPartnerMessage) dom.noPartnerMessage.style.display = 'none';
@@ -513,6 +542,7 @@
     randomDC = null;
     if (dom.randomRemote) dom.randomRemote.srcObject = null;
     randomPartnerId = null;
+    randomPartnerGender = null;
     if (dom.randomMessages) dom.randomMessages.innerHTML = '';
     if (dom.randomChatBox) dom.randomChatBox.style.display = 'none';
     if (dom.randomPartnerLabel) dom.randomPartnerLabel.style.display = 'none';
@@ -758,7 +788,7 @@
     cacheChatDom();
     bindChatEvents();
     connectWebSocket();
-    applyStaticTranslations(); // تطبيق الترجمة على شاشة الدردشة
+    applyStaticTranslations(); // تأكد من ترجمة شاشة الدردشة
     switchTab('random');
     randomState = 'idle';
     updateRandomButtons();
@@ -767,7 +797,7 @@
 
   // بدء التطبيق
   document.addEventListener('DOMContentLoaded', () => {
-    applyStaticTranslations(); // ترجمة الشاشات الأولى
+    applyStaticTranslations(); // الشاشات الأولى
     initStartupScreens();
   });
 
